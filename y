@@ -7,7 +7,7 @@ import sys
 import edn_format
 
 from yel_status import NOT_FOUND
-from yel_utils import pythonify, Options
+from yel_utils import pythonify, Options, error
 
 path = [os.path.join(os.path.dirname(__file__), 'commands')]
 
@@ -33,10 +33,12 @@ def main(name, args):
     parsed_options = pythonify(edn_format.loads(options_str))
     if isinstance(parsed_options, dict):
         dict_options = parsed_options 
+        wrapped = False
     else:
         dict_options = dict(value=parsed_options)
+        wrapped = True
 
-    options = Options(dict_options)
+    options = Options(dict_options, wrapped)
     try:
         command = import_command(name)
         stdin = sys.stdin

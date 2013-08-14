@@ -46,9 +46,10 @@ def make_printer(out):
     return printer
 
 class Options(dict, TaggedElement):
-    def __init__(self, value):
+    def __init__(self, value, wrapped=False):
         self.name = "y.O"
         self.update(value)
+        self.wrapped = wrapped
 
     def __str__(self):
         return "#y.O {}".format(edn_format.dumps(self.to_dict()))

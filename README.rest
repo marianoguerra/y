@@ -3,12 +3,213 @@ yel
 
 the last command you will use
 
-commands to implement
----------------------
+what is it?
+-----------
 
-* wrap
-* unwrap
-* select
-* get
-* ls #y.FileEntry
-* pwd #y.Path
+*y* is a command that if everything goes as planed should end up being a shell, nonetheless it plays nice with other unix commands
+
+no really, what is it?
+----------------------
+
+what would happen if the shell spoke `edn <https://github.com/edn-format/edn>`_
+instead of text.
+
+that and commands inspired by python/clojure
+
+where is stderr?
+----------------
+
+there is no stderr
+
+what?
+-----
+
+thanks to tagged values in edn errors can flow from command to command going
+through stdout without affecting the actual data processing, by default if a
+command receives an error it will pass it along.
+
+let's make an error::
+
+    $ y error :status 404 :reason '"not found"'
+
+    #y.E {"status" 404 "reason" "not found"}
+
+now let's pipe it to cat::
+
+    $ y error :status 404 :reason '"not found"' | y cat
+
+    #y.E {"status" 404 "reason" "not found"}
+
+no problem it went by without problem, now let's pipe that to something that does something useful::
+
+    $ y error :status 404 :reason '"not found"' | y range
+
+    [0 1 2 3 4 5 6 7 8 9]
+
+so, one output but two inputs right?
+------------------------------------
+
+you read my mind, you mean to the inputs and the command line options right?
+
+well it happens that that's just a convenience, options are tagged values that
+can be sent at any point in the input.
+
+yes, you are right (I read minds), you can change the options of a command on the fly::
+
+    $ y starts-with
+    asd
+    false
+
+    #y.O{:value "a"}
+    asd
+    true
+
+    dsa
+    false
+
+    #y.O{:value "x"}
+    xsdfs
+    true
+
+    $ y starts-with x
+    asd
+    false
+
+    xxx
+    true
+
+    $ y options x
+    #y.O {"value" "x"}
+
+    $ y options x | y starts-with
+    xsdffd
+    true
+
+and the errno status codes?
+---------------------------
+
+I'm using HTTP status response codes, I may invent 8xx errors or something
+like that if I need new ones, but there are some useful ones there and people
+remember HTTP status codes more than errno ones ;)
+
+but wait, that would suck for humans reading it!
+------------------------------------------------
+
+nope, I will provide pretty printers and may detect if it's the last command
+and pretty print it for you.
+
+let commands and computers speak formats they like and humans read formats
+they like, don't push text to computers or data formats to humans.
+
+you are the Lennart Poettering of the shell
+-------------------------------------------
+
+is that a compliment? :)
+
+but, but, what would slashdot users say?
+----------------------------------------
+
+I can imagine it, if it's not broken don't fix it, the shell is ok as it is, that's not unix.
+
+I can imagine the same people telling the same things to K&R when they were
+developing unix and C (replacing unix and C for what was mainstream at the
+moment)
+
+show me more
+------------
+
+a y command is a python module that will be loaded by name, the format is::
+
+    y <command> <args>
+
+where command is a name and args can be any valid edn value, an example using
+our friend echo::
+
+    $ y echo :num 1 :bool 2 :symbol asd :keyword :lala
+
+    {"symbol" "asd" "num" 1 "bool" 2 "keyword" "lala"}
+
+for now if the command arguments are not a vector, a list, a set or a single
+value it will be interpreted as a map (may change in the future)
+
+    $ y echo [1 2 3]
+
+    [1 2 3]
+
+    $ y echo "asd"
+
+    "asd"
+
+    $ y echo asd
+
+    "asd"
+
+    $ y echo :asd
+
+    "asd"
+
+and what can I do with that?
+
+I don't know here are some random commands::
+
+    $ y echo '"hi this is some text"' | y title
+    "Hi This Is Some Text"
+
+    $ y echo '"hi this is some text"' | y title | y shuffle
+    [" " "h" "o" "s" " " "T" " " "i" "e" "H" " " "i" "I" "m" "S" "e" "s" "x" "T" "t"]
+
+    $ y echo '"hi this is some text"' | y title | y shuffle | y join
+    "i THSx e Imtih Tssoe"
+
+    $ y echo '"hi this is some text"' | y title | y shuffle | y join | y lower
+    "xtesi is  htehmsoit "
+
+    $ y echo '"hi this is some text"' | y slice :start 1 :stop 7
+    "i this"
+
+    $ y echo '"hi this is some text"' | y slice :start 7 :stop 0 :step -1
+    " siht i"
+
+    $ seq 1 10 | y one-list
+    [1 2 3 4 5 6 7 8 9 10]
+
+    $ seq 1 10 | y one-list | y shuffle
+    [2 5 7 8 3 6 1 9 10 4]
+
+    $ seq 1 10 | y one-list | y shuffle | y sort
+    [1 2 3 4 5 6 7 8 9 10]
+
+    $ seq 1 10 | y one-list | y min
+    1
+
+    $ seq 1 10 | y one-list | y max
+    10
+
+    $ y range
+    [0 1 2 3 4 5 6 7 8 9]
+
+    $ y range :start 2
+    [2 3 4 5 6 7 8 9]
+
+    $ y range :start 2 :stop 7
+    [2 3 4 5 6]
+
+    $ y range :start 2 :stop 7 :step 2
+    [2 4 6]
+
+    $ y range :start 2 :stop 7 :step 2 | y reverse
+    [6 4 2]
+
+all commands read from stdin so you can play with it from there::
+
+    $ y cat
+    hi
+    hi
+    hello
+    hello
+    ^D
+
+license
+-------
+
+GPL v3 (may change my mind in the future)
