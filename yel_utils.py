@@ -1,6 +1,7 @@
 import os
 import sys
 import edn_format
+import collections
 
 from edn_format.edn_parse import TaggedElement
 from edn_format.edn_lex import Symbol, Keyword
@@ -8,6 +9,17 @@ from edn_format.edn_lex import Symbol, Keyword
 from yel_status import OK
 
 END_UNIT = "\n"
+
+def get_key(data, key, default):
+    if isinstance(data, collections.Sequence):
+        if key in data:
+            return data[key]
+        else:
+            return default
+    elif isinstance(data, collections.Mapping):
+        return data.get(key, default)
+    else:
+        return default
 
 def pythonify_seq(obj):
     result = []
@@ -171,6 +183,12 @@ class TaggedValue(TaggedElement):
 
     def __hash__(self):
         return hash(self.value)
+
+    def __cmp__(self, other):
+        if isinstance(other, TaggedValue):
+            return cmp(self.value, other.value)
+        else:
+            return cmp(self.value, other)
 
 class TaggedString(TaggedValue):
     def __str__(self):

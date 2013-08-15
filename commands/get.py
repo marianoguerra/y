@@ -1,4 +1,4 @@
-from yel_utils import TypeCommand
+from yel_utils import TypeCommand, get_key
 import collections
 
 class Command(TypeCommand):
@@ -10,14 +10,7 @@ class Command(TypeCommand):
 
     def fun(self, data):
         key = self.options.get("value", "value")
-
-        if isinstance(data, collections.Sequence):
-            if key in data:
-                return data[key]
-            else:
-                return None
-        else:
-            return data.get(key, None)
+        return get_key(data, key, None)
 
 def run(options, din, dout):
     cmd = Command(options, din, dout)

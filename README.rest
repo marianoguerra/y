@@ -513,6 +513,15 @@ slice (the generated seq is different on each example to keep the output short):
     4
     5
 
+many commands::
+
+    $ y ls | y keep-keys [type path size] | y group-by type | y get f | y flatten-1 | y sort-by size | y keep-keys [ path ]
+
+    will display a list of all the file paths under the current directory
+    sorted by size
+
+    it could be simpler but the idea is to show how commands compose
+
 things to define
 ----------------
 
@@ -528,7 +537,7 @@ commands
 * map
 * reduce
 * filter
-* predicates (int? float? string? number? odd? even? zero? empty? seq? map?)
+* predicates (int? float? string? number? odd? even? zero? empty? seq? map? dir? file? path?)
 * sort-by (key)
 * group-by
 
