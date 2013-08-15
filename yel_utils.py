@@ -10,6 +10,7 @@ from edn_format.edn_parse import TaggedElement
 from edn_format.edn_lex import Symbol, Keyword
 
 from yel_status import OK
+from yel_predicates import *
 
 END_UNIT = "\n"
 
@@ -39,12 +40,6 @@ def get_group_from_gid(gid):
 
         CACHED_GROUP_NAMES[gid] = groupname
         return groupname
-
-def is_map(data):
-    return isinstance(data, collections.Mapping)
-
-def is_seq(data):
-    return isinstance(data, collections.Iterable) and not isinstance(data, str)
 
 def to_list(data):
     if is_seq(data):

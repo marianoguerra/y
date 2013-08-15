@@ -40,16 +40,19 @@ def main(name, command_args):
         options_str = "{%s}" % " ".join(args)
 
     parsed_options = pythonify(edn_format.loads(options_str))
-    if isinstance(parsed_options, dict):
-        dict_options = parsed_options 
-        wrapped = False
-    else:
-        dict_options = dict(value=parsed_options)
-        wrapped = True
 
-    options = Options(dict_options, wrapped)
     try:
         command = import_command(name)
+        default_param = getattr(command, "DEFAULT_PARAM", "value")
+
+        if isinstance(parsed_options, dict):
+            dict_options = parsed_options 
+            wrapped = False
+        else:
+            dict_options = {default_param: parsed_options}
+            wrapped = True
+
+        options = Options(dict_options, wrapped)
         dout = sys.stdout
 
         if is_map:

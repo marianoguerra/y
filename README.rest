@@ -522,6 +522,53 @@ many commands::
 
     it could be simpler but the idea is to show how commands compose
 
+filtering::
+
+    $ y ls | y keep :is eq? :key type :value f | y p
+
+    -------+--------+---------+--------------------------+-----------------------------------------+--------------------------+------+-------
+    Uid    | Gid    | Mode    | Mtime                    | Path                                    | Atime                    | Type | Size
+    -------+--------+---------+--------------------------+-----------------------------------------+--------------------------+------+-------
+    ubuntu | ubuntu | 0100664 | Thu Aug 15 17:44:46 2013 | /home/ubuntu/src/yel/README.rest        | Thu Aug 15 17:44:46 2013 | File | 8 KBs
+    ubuntu | ubuntu | 0100664 | Thu Aug 15 18:00:59 2013 | /home/ubuntu/src/yel/yel_utils.pyc      | Thu Aug 15 18:01:46 2013 | File | 15 KBs
+    ubuntu | ubuntu | 0100764 | Thu Aug 15 19:08:05 2013 | /home/ubuntu/src/yel/y                  | Thu Aug 15 19:08:05 2013 | File | 2 KBs
+    ubuntu | ubuntu | 0100664 | Thu Aug 15 19:09:34 2013 | /home/ubuntu/src/yel/yel_predicates.py  | Thu Aug 15 19:09:34 2013 | File | 1 KBs
+    ubuntu | ubuntu | 0100664 | Thu Aug 15 17:46:40 2013 | /home/ubuntu/src/yel/yel_utils.py       | Thu Aug 15 17:46:40 2013 | File | 9 KBs
+    ubuntu | ubuntu | 0100664 | Wed Aug 14 20:14:45 2013 | /home/ubuntu/src/yel/yel_status.pyc     | Wed Aug 14 20:16:28 2013 | File | 0 KBs
+    ubuntu | ubuntu | 0100664 | Wed Aug 14 16:13:12 2013 | /home/ubuntu/src/yel/parser.out         | Wed Aug 14 14:30:53 2013 | File | 52 KBs
+    ubuntu | ubuntu | 0100664 | Thu Aug 15 19:09:36 2013 | /home/ubuntu/src/yel/yel_predicates.pyc | Thu Aug 15 19:09:51 2013 | File | 3 KBs
+    ubuntu | ubuntu | 0100664 | Wed Aug 14 15:21:48 2013 | /home/ubuntu/src/yel/yel_status.py      | Thu Aug 15 15:23:14 2013 | File | 0 KBs
+    ubuntu | ubuntu | 0100664 | Thu Aug 15 11:26:30 2013 | /home/ubuntu/src/yel/test.py            | Thu Aug 15 11:26:30 2013 | File | 0 KBs
+    ubuntu | ubuntu | 0100664 | Wed Aug 14 16:13:12 2013 | /home/ubuntu/src/yel/parsetab.py        | Wed Aug 14 16:14:40 2013 | File | 7 KBs
+    ubuntu | ubuntu | 0100664 | Wed Aug 14 20:04:00 2013 | /home/ubuntu/src/yel/.gitignore         | Wed Aug 14 20:04:10 2013 | File | 0 KBs
+    ubuntu | ubuntu | 0100664 | Wed Aug 14 20:14:45 2013 | /home/ubuntu/src/yel/parsetab.pyc       | Wed Aug 14 20:16:28 2013 | File | 7 KBs
+
+    $ seq 1 10 | y keep even?
+
+    2
+    4
+    6
+    8
+    10
+
+    $ y ls | y drop :is eq? :key type :value f | y p
+
+    -------+--------+--------+--------------------------+---------------------------------+--------------------------+------+------
+    Uid    | Gid    | Mode   | Mtime                    | Path                            | Atime                    | Type | Size
+    -------+--------+--------+--------------------------+---------------------------------+--------------------------+------+------
+    ubuntu | ubuntu | 040775 | Thu Aug 15 18:01:46 2013 | /home/ubuntu/src/yel/edn_format | Thu Aug 15 18:02:38 2013 | Dir  | 4 KBs
+    ubuntu | ubuntu | 040755 | Wed Aug 14 15:56:56 2013 | /home/ubuntu/src/yel/pyrfc3339  | Thu Aug 15 15:57:34 2013 | Dir  | 4 KBs
+    ubuntu | ubuntu | 040775 | Thu Aug 15 19:12:21 2013 | /home/ubuntu/src/yel/.git       | Wed Aug 14 20:04:03 2013 | Dir  | 4 KBs
+    ubuntu | ubuntu | 040775 | Thu Aug 15 19:16:33 2013 | /home/ubuntu/src/yel/commands   | Thu Aug 15 19:12:19 2013 | Dir  | 4 KBs
+
+    $ seq 1 10 | y drop even?
+
+    1
+    3
+    5
+    7
+    9
+
 all collection functions apply to units (an edn value on a line for now)?
 -------------------------------------------------------------------------
 
@@ -561,8 +608,6 @@ commands
 unix commands
 -------------
 
-* ps
-* top
 * df
 * free
 * recursive ls
