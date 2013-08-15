@@ -209,6 +209,74 @@ all commands read from stdin so you can play with it from there::
     hello
     ^D
 
+first, last, nth::
+
+    $ seq 1 10 | y first
+
+    1
+
+    $ seq 1 10 | y first 3
+
+    1
+    2
+    3
+
+    $ seq 1 10 | y first 5
+
+    1
+    2
+    3
+    4
+    5
+
+    $ seq 1 10 | y first 20
+
+    1
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
+    10
+
+    $ seq 1 10 | y last
+
+    10
+
+    $ seq 1 10 | y last 3
+
+    8
+    9
+    10
+
+    $ seq 1 10 | y nth 5
+
+    5
+
+    $ seq 1 10 | y nth 2
+
+    2
+
+    $ seq 1 10 | y nth
+
+    1
+
+    $ seq 1 10 | y nth 20
+
+    nil
+
+things to define
+----------------
+
+how to differentiate commands that work on collections on each line and
+the ones that works on the whole input as a collection?
+
+* prefix/suffix?
+* option?
+
 license
 -------
 
