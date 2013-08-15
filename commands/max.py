@@ -1,16 +1,18 @@
-import sys
-from yel_utils import TypeCommand
-import collections
+from yel_utils import InputCommand
 
-class Command(TypeCommand):
+class CountCommand(InputCommand):
 
     def __init__(self, options, din, dout):
-        TypeCommand.__init__(self, collections.Iterable, self.fun, options,
-                din, dout)
+        InputCommand.__init__(self, options, din, dout)
+        self.max = None
 
-    def fun(self, data):
-        return max(list(data))
+    def on_end(self):
+        self.printer(self.max)
 
-def run(options=None, din=sys.stdin, dout=sys.stdout):
-    cmd = Command(options, din, dout)
+    def on_data(self, data):
+        if self.max is None or self.max < data:
+            self.max = data
+
+def run(options, din, dout):
+    cmd = CountCommand(options, din, dout)
     return cmd.run()
