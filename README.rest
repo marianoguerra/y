@@ -282,6 +282,57 @@ keep, drop::
 
     {"month" 8 "year" 2013 "day" 15}
 
+drop-first, drop-last::
+
+    $ seq 1 10 | y drop-first
+
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
+    10
+
+    $ seq 1 10 | y drop-first 3
+
+    4
+    5
+    6
+    7
+    8
+    9
+    10
+
+    $ seq 1 10 | y drop-last
+
+    1
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
+
+    $ seq 1 10 | y drop-last 3
+
+    1
+    2
+    3
+    4
+    5
+    6
+    7
+
+    $ seq 1 10 | y drop-last 30
+
+    $
+
+
 things to define
 ----------------
 
