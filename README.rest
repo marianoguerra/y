@@ -558,6 +558,17 @@ commands
 * predicates (int? float? string? number? odd? even? zero? empty? seq? map? dir? file? path?)
 * add optional predicate to any/all
 
+unix commands
+-------------
+
+* ps
+* top
+* df
+* free
+* recursive ls
+* pwd
+
+
 license
 -------
 
