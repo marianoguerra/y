@@ -1,16 +1,18 @@
-import sys
-from yel_utils import TypeCommand
-import collections
+from yel_utils import InputCommand
 
-class Command(TypeCommand):
+class Command(InputCommand):
 
     def __init__(self, options, din, dout):
-        TypeCommand.__init__(self, collections.Iterable, self.fun, options,
-                din, dout)
+        InputCommand.__init__(self, options, din, dout)
+        self.accum = []
 
-    def fun(self, data):
-        return list(data)[::-1]
+    def on_end(self):
+        for item in self.accum[::-1]:
+            self.printer(item)
 
-def run(options=None, din=sys.stdin, dout=sys.stdout):
+    def on_data(self, data):
+        self.accum.append(data)
+
+def run(options, din, dout):
     cmd = Command(options, din, dout)
     return cmd.run()

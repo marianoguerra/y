@@ -425,6 +425,29 @@ join::
     $ seq 1 10 | y join
     "12345678910"
 
+replace::
+
+    $ echo -e "foo\nbar\nbaz" | y replace :old a :new x
+
+    "foo"
+    "bxr"
+    "bxz"
+
+reverse::
+
+    $ seq 1 10 | y reverse
+
+    10
+    9
+    8
+    7
+    6
+    5
+    4
+    3
+    2
+    1
+
 things to define
 ----------------
 
