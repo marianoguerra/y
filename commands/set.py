@@ -1,4 +1,3 @@
-import sys
 from yel_utils import InputCommand
 
 class SetCommand(InputCommand):
@@ -14,6 +13,6 @@ class SetCommand(InputCommand):
     def on_data(self, data):
         self.set.add(data)
 
-def run(options=None, din=sys.stdin, dout=sys.stdout):
+def run(options, din, dout):
     cmd = SetCommand(options, din, dout)
     return cmd.run()
