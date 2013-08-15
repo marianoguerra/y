@@ -13,9 +13,6 @@ class Command(InputCommand):
         key_name = self.options.get("value", "value")
         key = data[key_name]
 
-        if isinstance(key, TaggedValue):
-            key = key.value
-
         bucket = self.accum.get(key, None)
 
         if bucket is None:

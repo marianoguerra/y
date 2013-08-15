@@ -219,11 +219,11 @@ class TaggedValue(TaggedElement):
     def __hash__(self):
         return hash(self.value)
 
-    def __cmp__(self, other):
+    def __eq__(self, other):
         if isinstance(other, TaggedValue):
-            return cmp(self.value, other.value)
+            return self.value == other.value
         else:
-            return cmp(self.value, other)
+            return self.value == other
 
 class TaggedString(TaggedValue):
     def __str__(self):
