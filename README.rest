@@ -522,6 +522,24 @@ many commands::
 
     it could be simpler but the idea is to show how commands compose
 
+all collection functions apply to units (an edn value on a line for now)?
+-------------------------------------------------------------------------
+
+yes, but you can use map to apply a command to each item in a unit if it's
+a sequence::
+
+    $ y ls | y keys
+
+    ["uid" "gid" "mode" "mtime" "path" "atime" "type" "size"]
+    ["uid" "gid" "mode" "mtime" "path" "atime" "type" "size"]
+    ["uid" "gid" "mode" "mtime" "path" "atime" "type" "size"]
+
+    $ y ls | y keys | y map upper
+
+    ["UID" "GID" "MODE" "MTIME" "PATH" "ATIME" "TYPE" "SIZE" ]
+    ["UID" "GID" "MODE" "MTIME" "PATH" "ATIME" "TYPE" "SIZE" ]
+    ["UID" "GID" "MODE" "MTIME" "PATH" "ATIME" "TYPE" "SIZE" ]
+
 things to define
 ----------------
 
@@ -530,16 +548,15 @@ the ones that works on the whole input as a collection?
 
 * prefix/suffix?
 * option?
+* docs?
 
 commands
 --------
 
-* map
 * reduce
 * filter
 * predicates (int? float? string? number? odd? even? zero? empty? seq? map? dir? file? path?)
-* sort-by (key)
-* group-by
+* add optional predicate to any/all
 
 license
 -------

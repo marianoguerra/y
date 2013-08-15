@@ -10,6 +10,9 @@ from yel_status import OK
 
 END_UNIT = "\n"
 
+def is_seq(data):
+    return isinstance(data, collections.Iterable)
+
 def get_key(data, key, default):
     if isinstance(data, collections.Sequence):
         if key in data:
@@ -113,13 +116,9 @@ class InputCommand(object):
 
     def run(self):
         try:
-            unit = self.din.readline()
-            while not self.finish and unit:
-                try:
-                    data = edn_format.loads(unit)
-                except SyntaxError as error:
-                    print_error(str(error), 500, self.dout)
-                    unit = self.din.readline()
+            skip, end, data = next_data(self.din, self.dout)
+            while not self.finish and not end:
+                if skip:
                     continue
 
                 if isinstance(data, Options):
@@ -127,13 +126,49 @@ class InputCommand(object):
                 else:
                     self.on_data(data)
 
-                unit = self.din.readline()
+                skip, end, data = next_data(self.din, self.dout)
 
             self.on_end()
         except KeyboardInterrupt:
             pass
 
         return self.status
+
+class LineMapper(object):
+    
+    def __init__(self, data):
+        if is_seq(data):
+            self.remaining = data
+        else:
+            self.remaining = [data]
+
+    def next_data(self):
+        if len(self.remaining) > 0:
+            return False, False, self.remaining.pop(0)
+        else:
+            return False, True, None
+
+
+def next_data(din, dout):
+    skip = False
+    data = None
+
+    if isinstance(din, LineMapper):
+        return din.next_data()
+
+    unit = din.readline()
+    end = not bool(unit)
+
+    if end:
+        return skip, end, data
+
+    try:
+        data = edn_format.loads(unit)
+    except SyntaxError as err:
+        print_error(str(err), 500, dout)
+        skip = True
+
+    return skip, end, data
 
 class TypeCommand(InputCommand):
 

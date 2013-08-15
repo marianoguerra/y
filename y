@@ -6,8 +6,9 @@ import sys
 
 import edn_format
 
+import yel_utils
 from yel_status import NOT_FOUND
-from yel_utils import pythonify, Options, error
+from yel_utils import pythonify, Options, error, LineMapper, next_data, is_seq
 
 path = [os.path.join(os.path.dirname(__file__), 'commands')]
 
@@ -17,7 +18,15 @@ def import_command(name):
     file_.close()
     return module
 
-def main(name, args):
+def main(name, command_args):
+
+    if name == "map":
+        is_map = True
+        name = command_args[0]
+        args = command_args[1:]
+    else:
+        is_map = False
+        args = command_args
 
     if len(args) == 0:
         options_str = "{}"
@@ -41,10 +50,36 @@ def main(name, args):
     options = Options(dict_options, wrapped)
     try:
         command = import_command(name)
-        stdin = sys.stdin
-        stdout = sys.stdout
-        status = command.run(options, stdin, stdout)
-        stdout.flush()
+        dout = sys.stdout
+
+        if is_map:
+            real_end_unit = yel_utils.END_UNIT
+            yel_utils.END_UNIT = " "
+
+            skip, end, data = next_data(sys.stdin, dout)
+
+            while not end:
+                if skip:
+                    continue
+                data_is_seq = is_seq(data)
+
+                if data_is_seq:
+                    dout.write("[")
+
+                din = LineMapper(data)
+                command.run(options, din, dout)
+
+                if data_is_seq:
+                    dout.write("]")
+
+                dout.write(real_end_unit)
+
+                skip, end, data = next_data(sys.stdin, dout)
+        else:
+            din = sys.stdin
+
+        status = command.run(options, din, dout)
+        dout.flush()
         sys.exit(status)
     except ImportError:
         error("Command {} not found".format(name), NOT_FOUND)
