@@ -72,8 +72,14 @@ class InputCommand(object):
         self.din = din
         self.dout = dout
         self.options = None
+        self.status = OK
+        self.finish = False
 
         self.on_options(options)
+
+    def end(self, status=OK):
+        self.finish = True
+        self.status = status
 
     def on_options(self, options):
         self.options = pythonify(options)
@@ -93,7 +99,7 @@ class InputCommand(object):
     def run(self):
         try:
             unit = self.din.readline()
-            while unit:
+            while not self.finish and unit:
                 try:
                     data = edn_format.loads(unit)
                 except SyntaxError as error:
@@ -112,7 +118,7 @@ class InputCommand(object):
         except KeyboardInterrupt:
             pass
 
-        return OK
+        return self.status
 
 class TypeCommand(InputCommand):
 

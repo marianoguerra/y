@@ -389,6 +389,20 @@ bool::
     $ echo nil | y bool
     false
 
+any, all::
+
+    $ seq 1 10 | y all
+    true
+
+    $ seq 0 10 | y all
+    false
+
+    $ seq 1 10 | y any
+    true
+
+    $ seq 0 1 | y any
+    true
+
 things to define
 ----------------
 

@@ -1,16 +1,16 @@
-import sys
-from yel_utils import TypeCommand
-import collections
+from yel_utils import InputCommand
 
-class Command(TypeCommand):
+class Command(InputCommand):
 
-    def __init__(self, options, din, dout):
-        TypeCommand.__init__(self, collections.Iterable, self.fun, options,
-                din, dout)
+    def on_end(self):
+        if not self.finish:
+            self.printer(False)
 
-    def fun(self, data):
-        return any(list(data))
+    def on_data(self, data):
+        if bool(data): 
+            self.end()
+            self.printer(True)
 
-def run(options=None, din=sys.stdin, dout=sys.stdout):
+def run(options, din, dout):
     cmd = Command(options, din, dout)
     return cmd.run()
