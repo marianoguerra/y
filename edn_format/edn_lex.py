@@ -45,10 +45,10 @@ tokens = ('WHITESPACE',
           'CHAR',
           'STRING',
           'NIL',
+          'SYMBOL',
           'BOOLEAN',
           'INTEGER',
           'FLOAT',
-          'SYMBOL',
           'KEYWORD',
           'VECTOR_START',
           'VECTOR_END',
@@ -60,8 +60,8 @@ tokens = ('WHITESPACE',
           'TAG')
 
 
-SYMBOL_FIRST_CHAR = r'\w+!\-_$&=\.'
-SYMBOL = r"[{0}][{0}\d\?/]*".format(SYMBOL_FIRST_CHAR)
+SYMBOL_FIRST_CHAR = r'\w+!\-_$&=\.\?'
+SYMBOL = r"[{0}][{0}\d/]*".format(SYMBOL_FIRST_CHAR)
 t_VECTOR_START = '\['
 t_VECTOR_END = '\]'
 t_LIST_START = '\('
@@ -100,15 +100,6 @@ def t_STRING(t):
 def t_NIL(t):
     """nil"""
     t.value = None
-    return t
-
-
-def t_BOOLEAN(t):
-    r"""(true)|(false)"""
-    if t.value == "false":
-        t.value = False
-    elif t.value == "true":
-        t.value = True
     return t
 
 
@@ -160,6 +151,15 @@ def t_KEYWORD(t):
 @ply.lex.TOKEN(SYMBOL)
 def t_SYMBOL(t):
     t.value = Symbol(t.value)
+    return t
+
+
+def t_BOOLEAN(t):
+    r"""(true)|(false)"""
+    if t.value == "false":
+        t.value = False
+    elif t.value == "true":
+        t.value = True
     return t
 
 

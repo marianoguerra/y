@@ -46,6 +46,12 @@ def is_not_nil(value, param=None):
 def is_eq(value, param=None):
     return value == param
 
+def is_truthy(value, param=None):
+    return bool(value)
+
+def is_falsy(value, param=None):
+    return not bool(value)
+
 PREDICATES = {
     "nil?": is_nil,
     "int?": is_int,
@@ -60,7 +66,9 @@ PREDICATES = {
     "zero?": is_zero,
     "even?": is_even,
     "odd?": is_odd,
-    "eq?": is_eq
+    "eq?": is_eq,
+    "true?": is_truthy,
+    "false?": is_falsy
 }
 
 for name, predicate in PREDICATES.items():

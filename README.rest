@@ -569,6 +569,27 @@ filtering::
     7
     9
 
+    $ seq 0 1 10 | y any asd?
+    #y.E {"status" 404 "reason" "Invalid predicate 'asd?'"}
+
+    $ seq 1 10 | y any zero?
+    false
+
+    $ seq 0 10 | y any zero?
+    true
+
+    $ seq 0 10 | y all int?
+    true
+
+    $ seq 0 10 | y all even?
+    false
+
+    $ seq 0 10 | y all
+    false
+
+    $ seq 0 10 | y any
+    true
+
 all collection functions apply to units (an edn value on a line for now)?
 -------------------------------------------------------------------------
 
@@ -601,7 +622,6 @@ commands
 --------
 
 * reduce
-* add optional predicate to any/all
 
 unix commands
 -------------
