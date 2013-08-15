@@ -44,7 +44,13 @@ def is_map(data):
     return isinstance(data, collections.Mapping)
 
 def is_seq(data):
-    return isinstance(data, collections.Iterable)
+    return isinstance(data, collections.Iterable) and not isinstance(data, str)
+
+def to_list(data):
+    if is_seq(data):
+        return data
+    else:
+        return [data]
 
 def get_key(data, key, default):
     if isinstance(data, collections.Sequence):
@@ -144,10 +150,14 @@ class InputCommand(object):
     def error(self, reason, status=500):
         print_error(reason, status, self.dout)
 
+    def on_start(self):
+        pass
+
     def on_end(self):
         pass
 
     def run(self):
+        self.on_start()
         try:
             skip, end, data = next_data(self.din, self.dout)
             while not self.finish and not end:
@@ -170,10 +180,7 @@ class InputCommand(object):
 class LineMapper(object):
     
     def __init__(self, data):
-        if is_seq(data):
-            self.remaining = data
-        else:
-            self.remaining = [data]
+        self.remaining = to_list(data)
 
     def next_data(self):
         if len(self.remaining) > 0:
