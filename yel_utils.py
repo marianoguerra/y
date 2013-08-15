@@ -41,6 +41,12 @@ def get_group_from_gid(gid):
         CACHED_GROUP_NAMES[gid] = groupname
         return groupname
 
+def unwrap(data):
+    if isinstance(data, TaggedValue):
+        return data.value
+    else:
+        return data
+
 def to_list(data):
     if is_seq(data):
         return data

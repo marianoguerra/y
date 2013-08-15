@@ -46,6 +46,21 @@ def is_not_nil(value, param=None):
 def is_eq(value, param=None):
     return value == param
 
+def is_ne(value, param=None):
+    return value != param
+
+def is_ge(value, param=None):
+    return value >= param
+
+def is_le(value, param=None):
+    return value <= param
+
+def is_gt(value, param=None):
+    return value > param
+
+def is_lt(value, param=None):
+    return value < param
+
 def is_truthy(value, param=None):
     return bool(value)
 
@@ -68,7 +83,13 @@ PREDICATES = {
     "odd?": is_odd,
     "eq?": is_eq,
     "true?": is_truthy,
-    "false?": is_falsy
+    "false?": is_falsy,
+    "eq": is_eq,
+    "ne": is_ne,
+    "gt": is_gt,
+    "lt": is_lt,
+    "ge": is_ge,
+    "le": is_le
 }
 
 for name, predicate in PREDICATES.items():

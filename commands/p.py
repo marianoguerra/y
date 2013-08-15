@@ -23,6 +23,9 @@ class Command(InputCommand):
         self.accum = []
 
     def pprint(self):
+        if not self.accum:
+            return
+
         keys = self.accum[0].keys()
         human_rows = []
         human_titles = [humanify_title(key) for key in keys]

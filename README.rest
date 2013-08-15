@@ -543,15 +543,9 @@ filtering::
     ubuntu | ubuntu | 0100664 | Wed Aug 14 20:04:00 2013 | /home/ubuntu/src/yel/.gitignore         | Wed Aug 14 20:04:10 2013 | File | 0 KBs
     ubuntu | ubuntu | 0100664 | Wed Aug 14 20:14:45 2013 | /home/ubuntu/src/yel/parsetab.pyc       | Wed Aug 14 20:16:28 2013 | File | 7 KBs
 
-    $ seq 1 10 | y keep even?
+$ y ps | y keep-keys [pid username cpu_percent status exe name memory_percent] | y keep pid [lt 200] | y p
 
-    2
-    4
-    6
-    8
-    10
-
-    $ y ls | y drop :is eq? :key type :value f | y p
+    $ y ls | y drop type f | y p
 
     -------+--------+--------+--------------------------+---------------------------------+--------------------------+------+------
     Uid    | Gid    | Mode   | Mtime                    | Path                            | Atime                    | Type | Size
@@ -560,14 +554,6 @@ filtering::
     ubuntu | ubuntu | 040755 | Wed Aug 14 15:56:56 2013 | /home/ubuntu/src/yel/pyrfc3339  | Thu Aug 15 15:57:34 2013 | Dir  | 4 KBs
     ubuntu | ubuntu | 040775 | Thu Aug 15 19:12:21 2013 | /home/ubuntu/src/yel/.git       | Wed Aug 14 20:04:03 2013 | Dir  | 4 KBs
     ubuntu | ubuntu | 040775 | Thu Aug 15 19:16:33 2013 | /home/ubuntu/src/yel/commands   | Thu Aug 15 19:12:19 2013 | Dir  | 4 KBs
-
-    $ seq 1 10 | y drop even?
-
-    1
-    3
-    5
-    7
-    9
 
     $ seq 0 1 10 | y any asd?
     #y.E {"status" 404 "reason" "Invalid predicate 'asd?'"}

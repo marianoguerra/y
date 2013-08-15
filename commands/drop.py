@@ -1,26 +1,26 @@
-from yel_utils import InputCommand, PREDICATES, is_not_nil, get_key
+from yel_utils import InputCommand, PREDICATES, get_key, is_eq, unwrap
 
 DEFAULT_PARAM = "is"
 
 class Command(InputCommand):
-    def on_start(self):
-        filter_name = self.options.get("is", "not-nil?")
-        self.key = self.options.get("key", None)
-        self.value = self.options.get("value", None)
-        self.predicate = PREDICATES.get(filter_name, None)
-
-        if self.predicate is None:
-            self.error("Invalid predicate '{}'".format(filter_name), 404)
-            self.end()
 
     def on_data(self, data):
-        if self.key:
-            value = get_key(data, self.key, None)
-        else:
-            value = data
+        for field, value in self.options.items():
+            if isinstance(value, list) and len(value) == 2 and value[0] in PREDICATES:
+                pred_name = value[0]
+                predicate = PREDICATES[pred_name]
+                comparison = value[1]
 
-        if not self.predicate(value, self.value):
-            self.printer(data)
+            else:
+                pred_name = "eq"
+                predicate = is_eq
+                comparison = value
+
+            val = get_key(data, field, None)
+            if predicate(unwrap(val), comparison):
+                return
+
+        self.printer(data)
 
 def run(options, din, dout):
     cmd = Command(options, din, dout)
