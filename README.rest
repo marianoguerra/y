@@ -528,8 +528,9 @@ commands
 * map
 * reduce
 * filter
-* predicates (odd? even? zero? empty?)
+* predicates (int? float? string? number? odd? even? zero? empty? seq? map?)
 * sort-by (key)
+* group-by
 
 license
 -------

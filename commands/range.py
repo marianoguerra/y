@@ -1,4 +1,3 @@
-import sys
 from yel_utils import make_printer, Error
 from yel_status import OK
 

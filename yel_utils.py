@@ -1,3 +1,4 @@
+import os
 import sys
 import edn_format
 
@@ -158,5 +159,109 @@ def error(reason, status, out=sys.stdout):
     print_error(reason, status, out)
     sys.exit(status)
 
+class TaggedValue(TaggedElement):
+    def __init__(self, name, value):
+        self.value = value
+        self.name = name
+
+    def __str__(self):
+        return "{} {}".format(self.name, self.value)
+
+    __repr__ = __str__
+
+    def __hash__(self):
+        return hash(self.value)
+
+class TaggedString(TaggedValue):
+    def __str__(self):
+        # TODO: escape quotes
+        return '{} "{}"'.format(self.name, self.value)
+
+class FileSize(TaggedValue):
+    
+    def __init__(self, value):
+        TaggedValue.__init__(self, "#y.FileSize", value)
+
+class Uid(TaggedValue):
+    
+    def __init__(self, value):
+        TaggedValue.__init__(self, "#y.Uid", value)
+
+class Gid(TaggedValue):
+    
+    def __init__(self, value):
+        TaggedValue.__init__(self, "#y.Gid", value)
+
+class Path(TaggedString):
+    
+    def __init__(self, value):
+        TaggedValue.__init__(self, "#y.Path", value)
+
+class UnixPerms(TaggedValue):
+    def __init__(self, value):
+        TaggedValue.__init__(self, "#y.UnixPerms", value)
+
+    def __str__(self):
+        return '{} "{}"'.format(self.name, self.value)
+
+    __repr__ = __str__
+
+class Timestamp(TaggedValue):
+
+    def __init__(self, value):
+        TaggedValue.__init__(self, "#y.Timestamp", value)
+
+class FileType(TaggedString):
+
+    def __init__(self, value):
+        TaggedString.__init__(self, "#y.FileType", value)
+
+class File(dict, TaggedElement):
+
+    def __init__(self, value):
+        self.update(value)
+        self.name = "#y.File"
+
+    @classmethod
+    def from_path(cls, fpath):
+        stat = os.stat(fpath)
+        size = FileSize(stat.st_size)
+        uid = Uid(stat.st_uid)
+        gid = Gid(stat.st_gid)
+        atime = Timestamp(stat.st_atime)
+        mtime = Timestamp(stat.st_mtime)
+        mode = UnixPerms(oct(stat.st_mode))
+        path = Path(os.path.abspath(fpath))
+
+        if os.path.isfile(fpath):
+            ftype = "f"
+        elif os.path.isdir(fpath):
+            ftype = "d"
+        elif os.path.islink(fpath):
+            ftype = "l"
+        elif os.path.ismount(fpath):
+            ftype = "m"
+        else:
+            ftype = "?"
+
+        file_type = FileType(ftype)
+
+        return cls(dict(path=path, size=size, uid=uid, gid=gid, atime=atime,
+            mtime=mtime, mode=mode, type=file_type))
+
+    def __str__(self):
+        return "#y.File {}".format(edn_format.dumps(self.to_dict()))
+
+    def to_dict(self):
+        return dict(self.items())
+
 edn_format.add_tag("y.E", Error)
 edn_format.add_tag("y.O", Options)
+edn_format.add_tag("y.Uid", Uid)
+edn_format.add_tag("y.Gid", Gid)
+edn_format.add_tag("y.File", File)
+edn_format.add_tag("y.FileSize", FileSize)
+edn_format.add_tag("y.FileType", FileType)
+edn_format.add_tag("y.Path", Path)
+edn_format.add_tag("y.Timestamp", Timestamp)
+edn_format.add_tag("y.UnixPerms", UnixPerms)
