@@ -601,8 +601,6 @@ commands
 --------
 
 * reduce
-* filter
-* predicates (int? float? string? number? odd? even? zero? empty? seq? map? dir? file? path?)
 * add optional predicate to any/all
 
 unix commands
