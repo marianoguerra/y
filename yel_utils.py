@@ -39,9 +39,11 @@ def pythonify(obj):
         return obj
 
 def make_printer(out):
-    def printer(obj):
+    def printer(obj, add_end_unit=True):
         out.write(edn_format.dumps(obj))
-        out.write(END_UNIT)
+
+        if add_end_unit:
+            out.write(END_UNIT)
 
     return printer
 
