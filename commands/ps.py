@@ -7,7 +7,10 @@ def run(options, din, dout):
     printer = make_printer(dout)
 
     for pid in psutil.get_pid_list():
-        printer(psutil.Process(pid).as_dict())
+        try:
+            printer(psutil.Process(pid).as_dict())
+        except psutil._error.NoSuchProcess:
+            pass
 
     return OK
     
