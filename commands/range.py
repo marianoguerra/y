@@ -8,7 +8,8 @@ def run(options, din, dout):
     stop = options.get("stop", 10)
     step = options.get("step", 1)
 
-    printer(list(range(start, stop, step)))
+    for item in range(start, stop, step):
+        printer(item)
 
     return OK
     
