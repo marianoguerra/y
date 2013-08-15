@@ -455,6 +455,21 @@ set::
     1
     2
 
+shuffle::
+
+    $ seq 1 10 | y shuffle
+
+    8
+    5
+    4
+    7
+    6
+    3
+    10
+    9
+    1
+    2
+
 things to define
 ----------------
 
