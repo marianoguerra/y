@@ -7,7 +7,11 @@ class Command(InputCommand):
         filter_name = self.options.get("is", "not-nil?")
         self.key = self.options.get("key", None)
         self.value = self.options.get("value", None)
-        self.predicate = PREDICATES.get(filter_name, is_not_nil)
+        self.predicate = PREDICATES.get(filter_name, None)
+
+        if self.predicate is None:
+            self.error("Invalid predicate '{}'".format(filter_name), 404)
+            self.end()
 
     def on_data(self, data):
         if self.key:
