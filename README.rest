@@ -268,6 +268,20 @@ first, last, nth::
 
     nil
 
+keep, drop::
+
+    $ y date-time
+
+    {"hours" 8 "second" 11 "year" 2013 "day" 15 "minute" 52 "month" 8}
+
+    $ y date-time | y drop [year month day]
+
+    {"hours" 8 "second" 31 "minute" 51}
+
+    $ y date-time | y keep [year month day]
+
+    {"month" 8 "year" 2013 "day" 15}
+
 things to define
 ----------------
 
