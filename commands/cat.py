@@ -1,4 +1,3 @@
-import sys
 from yel_utils import InputCommand
 
 class Command(InputCommand):
