@@ -1,13 +1,17 @@
-import sys
-from yel_utils import TypeCommand
-import collections
+from yel_utils import InputCommand
 
-class CountCommand(TypeCommand):
+class CountCommand(InputCommand):
 
     def __init__(self, options, din, dout):
-        TypeCommand.__init__(self, collections.Sized, len, options,
-                din, dout)
+        InputCommand.__init__(self, options, din, dout)
+        self.count = 0
 
-def run(options=None, din=sys.stdin, dout=sys.stdout):
+    def on_end(self):
+        self.printer(self.count)
+
+    def on_data(self, data):
+        self.count += 1
+
+def run(options, din, dout):
     cmd = CountCommand(options, din, dout)
     return cmd.run()
