@@ -332,6 +332,62 @@ drop-first, drop-last::
 
     $
 
+not::
+
+    $ echo true | y not
+    false
+
+    $ echo false | y not
+    true
+
+    $ echo 1 | y not
+    false
+
+    $ echo 0 | y not
+    true
+
+    $ echo [] | y not
+    true
+
+    $ echo [1] | y not
+    false
+
+    $ y not
+    true
+    false
+
+    false
+    true
+
+    1
+    false
+
+    0
+    true
+    ^D
+
+bool::
+
+    $ echo [1] | y bool
+    true
+
+    $ echo [] | y bool
+    false
+
+    $ echo 1 | y bool
+    true
+
+    $ echo 0 | y bool
+    false
+
+    $ echo true | y bool
+    true
+
+    $ echo false | y bool
+    false
+
+    $ echo nil | y bool
+    false
 
 things to define
 ----------------
@@ -341,6 +397,14 @@ the ones that works on the whole input as a collection?
 
 * prefix/suffix?
 * option?
+
+commands
+--------
+
+* map
+* reduce
+* filter
+* predicates (odd? even? zero? empty?)
 
 license
 -------
