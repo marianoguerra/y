@@ -455,7 +455,7 @@ set::
     1
     2
 
-shuffle::
+shuffle and sort::
 
     $ seq 1 10 | y shuffle
 
@@ -469,6 +469,19 @@ shuffle::
     9
     1
     2
+
+    $ seq 1 10 | y shuffle | y sort
+
+    1
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
+    10
 
 slice (the generated seq is different on each example to keep the output short)::
 
@@ -516,6 +529,7 @@ commands
 * reduce
 * filter
 * predicates (odd? even? zero? empty?)
+* sort-by (key)
 
 license
 -------
