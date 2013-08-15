@@ -448,6 +448,13 @@ reverse::
     2
     1
 
+set::
+
+    $ echo -e "1\n2\n1" | y set
+
+    1
+    2
+
 things to define
 ----------------
 

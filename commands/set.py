@@ -3,13 +3,16 @@ from yel_utils import InputCommand
 
 class SetCommand(InputCommand):
 
-    def on_data(self, data):
-        if isinstance(data, (tuple, set, list)):
-            result = set(data)
-        else:
-            result = set([data])
+    def __init__(self, options, din, dout):
+        InputCommand.__init__(self, options, din, dout)
+        self.set = set()
 
-        self.printer(result)
+    def on_end(self):
+        for item in self.set:
+            self.printer(item)
+
+    def on_data(self, data):
+        self.set.add(data)
 
 def run(options=None, din=sys.stdin, dout=sys.stdout):
     cmd = SetCommand(options, din, dout)
