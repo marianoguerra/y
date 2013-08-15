@@ -1,6 +1,9 @@
 import os
+import pwd
+import grp
 import sys
 import edn_format
+import datetime
 import collections
 
 from edn_format.edn_parse import TaggedElement
@@ -9,6 +12,36 @@ from edn_format.edn_lex import Symbol, Keyword
 from yel_status import OK
 
 END_UNIT = "\n"
+
+CACHED_USER_NAMES  = {}
+CACHED_GROUP_NAMES = {}
+
+def get_user_from_uid(uid):
+    if uid in CACHED_USER_NAMES:
+        return CACHED_USER_NAMES[uid]
+    else:
+        try:
+            username = pwd.getpwuid(uid)[0]
+        except KeyError:
+            return str(uid)
+
+        CACHED_USER_NAMES[uid] = username
+        return username
+
+def get_group_from_gid(gid):
+    if gid in CACHED_GROUP_NAMES:
+        return CACHED_GROUP_NAMES[gid]
+    else:
+        try:
+            groupname = grp.getgrgid(gid)[0]
+        except KeyError:
+            return str(gid)
+
+        CACHED_GROUP_NAMES[gid] = groupname
+        return groupname
+
+def is_map(data):
+    return isinstance(data, collections.Mapping)
 
 def is_seq(data):
     return isinstance(data, collections.Iterable)
@@ -225,6 +258,9 @@ class TaggedValue(TaggedElement):
         else:
             return self.value == other
 
+    def to_human(self):
+        return str(self.value)
+
 class TaggedString(TaggedValue):
     def __str__(self):
         # TODO: escape quotes
@@ -235,15 +271,24 @@ class FileSize(TaggedValue):
     def __init__(self, value):
         TaggedValue.__init__(self, "#y.FileSize", value)
 
+    def to_human(self):
+        return "{} KBs".format(self.value / 1024)
+
 class Uid(TaggedValue):
     
     def __init__(self, value):
         TaggedValue.__init__(self, "#y.Uid", value)
 
+    def to_human(self):
+        return get_user_from_uid(self.value)
+
 class Gid(TaggedValue):
     
     def __init__(self, value):
         TaggedValue.__init__(self, "#y.Gid", value)
+
+    def to_human(self):
+        return get_group_from_gid(self.value)
 
 class Path(TaggedString):
     
@@ -264,10 +309,24 @@ class Timestamp(TaggedValue):
     def __init__(self, value):
         TaggedValue.__init__(self, "#y.Timestamp", value)
 
+    def to_human(self):
+        dtime = datetime.datetime.fromtimestamp(self.value)
+        return dtime.strftime("%c")
+
+
 class FileType(TaggedString):
+    TO_HUMAN = {
+        "f": "File",
+        "d": "Dir",
+        "l": "Link",
+        "m": "Mount"
+    }
 
     def __init__(self, value):
         TaggedString.__init__(self, "#y.FileType", value)
+
+    def to_human(self):
+        return self.TO_HUMAN.get(self.value, "Unknwon")
 
 class File(dict, TaggedElement):
 
