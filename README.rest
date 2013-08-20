@@ -608,6 +608,13 @@ commands
 --------
 
 * reduce
+* pyquery
+* key value store
+* persistent stack
+* persistent circular buffer
+* clj-http-like client
+* korma-like composable commands?
+* sqlite commands
 
 unix commands
 -------------
