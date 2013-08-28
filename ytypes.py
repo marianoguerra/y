@@ -121,3 +121,15 @@ class File(dict, Tagged):
 
         return cls(dict(path=path, size=size, uid=uid, gid=gid, atime=atime,
             mtime=mtime, mode=mode, type=file_type))
+
+
+TYPES = {
+    "y.FileSize": FileSize,
+    "y.Uid": Uid,
+    "y.Gid": Gid,
+    "y.Path": Path,
+    "y.UnixPerms": UnixPerms,
+    "y.Timestamp": Timestamp,
+    "y.FileType": FileType,
+    "y.File": File
+}

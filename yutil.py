@@ -7,7 +7,11 @@ logger = logging.getLogger("y")
 
 from commands import COMMANDS
 
+import ytypes
 import edn
+
+def is_error(obj):
+    return isinstance(obj, Error)
 
 def is_seq(obj):
     return (not isinstance(obj, str) and
@@ -124,8 +128,11 @@ class EdnReader(DataGenerator):
 
     def _on_data(self, data):
         try:
-            edn_data = edn.loads(data)
-            self.notify(edn_data)
+            edn_data = edn.loads(data, TYPES, True)
+            if is_error(edn_data):
+                self.notify_error(edn_data)
+            else:
+                self.notify(edn_data)
         except Exception as error:
             self.notify_error(error)
 
@@ -133,9 +140,13 @@ class EdnReader(DataGenerator):
         return self.din.next()
 
 class Error(edn.Tagged):
-    def __init__(self, reason, status):
-        edn.Tagged.__init__(self, "y.Error",
-                dict(reason=reason, status=status))
+    def __init__(self, reason, status=None):
+        # for the edn.loads constructor
+        if isinstance(reason, dict) and status is None:
+            edn.Tagged.__init__(self, "y.Error", reason)
+        else:
+            edn.Tagged.__init__(self, "y.Error",
+                    dict(reason=reason, status=status))
 
 class Writer(object):
 
@@ -273,7 +284,10 @@ def run_command(name, args, din=None, dout=None):
     ednout = EdnWriter(dout)
 
     def on_error(error):
-        ednout.error(str(error), 500)
+        if is_error(error):
+            ednout.emit(error)
+        else:
+            ednout.error(str(error), 500)
 
     ednin.on_error(on_error) 
     lines.on_error(on_error)
@@ -289,3 +303,6 @@ def run_command(name, args, din=None, dout=None):
             command(parsed, ednin, ednout, raw_args)
     else:
         print("Error: command '{}' not found".format(name))
+
+TYPES = {key: value for key, value in ytypes.TYPES.items()}
+TYPES["y.Error"] = Error
