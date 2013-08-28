@@ -139,14 +139,16 @@ class EdnReader(DataGenerator):
     def next(self):
         return self.din.next()
 
-class Error(edn.Tagged):
+class Error(dict, edn.Tagged):
     def __init__(self, reason, status=None):
         # for the edn.loads constructor
         if isinstance(reason, dict) and status is None:
+            dict.__init__(self, reason)
             edn.Tagged.__init__(self, "y.Error", reason)
         else:
-            edn.Tagged.__init__(self, "y.Error",
-                    dict(reason=reason, status=status))
+            value = dict(reason=reason, status=status)
+            dict.__init__(self, value)
+            edn.Tagged.__init__(self, "y.Error", value)
 
 class Writer(object):
 

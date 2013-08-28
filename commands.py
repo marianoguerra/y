@@ -276,7 +276,6 @@ def first(args, din, dout, raw_args):
     din.on_data(on_data)
     din.consume()
 
-
 def last(args, din, dout, raw_args):
     limit = args
     handler = Handler(din)

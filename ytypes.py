@@ -33,42 +33,47 @@ def get_group_from_gid(gid):
         CACHED_GROUP_NAMES[gid] = groupname
         return groupname
 
-class FileSize(Tagged):
+class FileSize(int, Tagged):
     
     def __init__(self, value):
+        int.__init__(self, value)
         Tagged.__init__(self, "y.FileSize", value)
 
     def to_human(self):
         return "{} KBs".format(self.value / 1024)
 
-class Uid(Tagged):
+class Uid(int, Tagged):
     
     def __init__(self, value):
+        int.__init__(self, value)
         Tagged.__init__(self, "y.Uid", value)
 
     def to_human(self):
         return get_user_from_uid(self.value)
 
-class Gid(Tagged):
+class Gid(int, Tagged):
     
     def __init__(self, value):
+        int.__init__(self, value)
         Tagged.__init__(self, "y.Gid", value)
 
     def to_human(self):
         return get_group_from_gid(self.value)
 
-class Path(Tagged):
+class Path(str, Tagged):
     
     def __init__(self, value):
+        str.__init__(self, value)
         Tagged.__init__(self, "y.Path", value)
 
 class UnixPerms(Tagged):
     def __init__(self, value):
         Tagged.__init__(self, "y.UnixPerms", value)
 
-class Timestamp(Tagged):
+class Timestamp(float, Tagged):
 
     def __init__(self, value):
+        float.__init__(self, value)
         Tagged.__init__(self, "y.Timestamp", value)
 
     def to_human(self):
@@ -76,7 +81,7 @@ class Timestamp(Tagged):
         return dtime.strftime("%c")
 
 
-class FileType(Tagged):
+class FileType(str, Tagged):
     TO_HUMAN = {
         "f": "File",
         "d": "Dir",
@@ -85,6 +90,7 @@ class FileType(Tagged):
     }
 
     def __init__(self, value):
+        str.__init__(self, value)
         Tagged.__init__(self, "y.FileType", value)
 
     def to_human(self):
@@ -93,6 +99,7 @@ class FileType(Tagged):
 class File(dict, Tagged):
 
     def __init__(self, value):
+        dict.__init__(self, value)
         Tagged.__init__(self, "y.File", value)
 
     @classmethod
