@@ -157,7 +157,7 @@ class Writer(object):
         self.dout = dout
 
     def emit(self, data):
-        self.dout.write(data)
+        self.raw_write(data)
 
     def raw_write(self, data):
         self.dout.write(data)
@@ -208,15 +208,12 @@ class EdnWriter(Writer):
 
     def emit(self, data):
         if not self.first and self.write_sep_after_first:
-            self.dout.write(self.sep)
+            self.raw_write(self.sep)
 
-        self.dout.write(edn.dumps(data))
+        self.raw_write(edn.dumps(data))
 
         if not self.write_sep_after_first:
-            self.dout.write(self.sep)
-
-        # TODO: remove?
-        self.dout.flush()
+            self.raw_write(self.sep)
 
         self.first = False
 
