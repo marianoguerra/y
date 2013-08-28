@@ -2,6 +2,7 @@ import os
 import pwd
 import grp
 import sys
+import imp
 import edn_format
 import datetime
 import collections
@@ -9,13 +10,90 @@ import collections
 from edn_format.edn_parse import TaggedElement
 from edn_format.edn_lex import Symbol, Keyword
 
-from yel_status import OK
+from yel_status import OK, NOT_FOUND
 from yel_predicates import *
 
 END_UNIT = "\n"
 
 CACHED_USER_NAMES  = {}
 CACHED_GROUP_NAMES = {}
+
+path = [os.path.join(os.path.dirname(__file__), 'commands')]
+
+def import_command(name, path):
+    file_, pathname, description = imp.find_module(name, path)
+    module = imp.load_module(name, file_, pathname, description)
+    file_.close()
+    return module
+
+
+def run_command(name, args, path, is_map=False, din=None, dout=None):
+    global END_UNIT
+    try:
+        command = import_command(name, path)
+        default_param = getattr(command, "DEFAULT_PARAM", "value")
+
+        if isinstance(args, dict):
+            dict_options = args 
+            wrapped = False
+        else:
+            dict_options = {default_param: args}
+            wrapped = True
+
+        options = Options(dict_options, wrapped)
+        dout = dout if dout is not None else sys.stdout
+
+        if is_map:
+            # TODO
+            real_end_unit = END_UNIT
+            END_UNIT = " "
+
+            skip, end, data = next_data(sys.stdin, dout)
+
+            while not end:
+                if skip:
+                    continue
+                data_is_seq = is_seq(data)
+
+                if data_is_seq:
+                    dout.write("[")
+
+                din = LineMapper(data)
+                command.run(options, din, dout)
+
+                if data_is_seq:
+                    dout.write("]")
+
+                dout.write(real_end_unit)
+
+                skip, end, data = next_data(sys.stdin, dout)
+
+            END_UNIT = real_end_unit
+        else:
+            din = din if din is not None else sys.stdin
+
+        status = command.run(options, din, dout)
+        dout.flush()
+        return status
+    except ImportError:
+        error("Command '{}' not found".format(name), NOT_FOUND)
+
+
+def eval_field(field, data, printer, error):
+    if isinstance(field, tuple):
+        if len(field) == 0:
+            return None
+        else:
+            command = field[0]
+            args = field[1:] if len(field) > 2 else field[1]
+            dout = DataOut()
+            din = LineMapper([data])
+            run_command(command, args, path, False, din, dout)
+            result_str = dout.units[0] if dout.units else None
+            result = pythonify(edn_format.loads(result_str))
+            return result
+    else:
+        return data
 
 def get_user_from_uid(uid):
     if uid in CACHED_USER_NAMES:
@@ -64,6 +142,28 @@ def get_key(data, key, default):
     else:
         return default
 
+def transform_seq(obj, visitor):
+    return [transform(item, visitor) for item in visitor(obj)]
+
+def transform(obj, visitor):
+    if isinstance(obj, dict):
+        result = {}
+        for key, value in obj.items():
+            new_key = visitor(key)
+            new_value = visitor(value)
+            result[new_key] = new_value
+
+        return result
+    elif isinstance(obj, list):
+        return transform_seq(obj, visitor)
+    elif isinstance(obj, tuple):
+        return tuple(transform_seq(obj, visitor))
+    elif isinstance(obj, set):
+        return set(transform_seq(obj, visitor))
+    else:
+        return visitor(obj)
+
+
 def pythonify_seq(obj):
     result = []
     for value in obj:
@@ -72,11 +172,17 @@ def pythonify_seq(obj):
 
     return result
 
+class StrSymbol(str):
+    pass
+
+class StrKeyword(str):
+    pass
+
 def pythonify(obj):
     if isinstance(obj, Symbol):
-        return str(obj)
+        return StrSymbol(obj)
     elif isinstance(obj, Keyword):
-        return str(obj)[1:]
+        return StrKeyword(str(obj)[1:])
     elif isinstance(obj, dict):
         result = {}
         for key, value in obj.items():
@@ -189,6 +295,17 @@ class LineMapper(object):
         else:
             return False, True, None
 
+class DataOut(object):
+
+    def __init__(self):
+        self.units = []
+
+    def write(self, data):
+        if data != END_UNIT:
+            self.units.append(pythonify(data))
+
+    def flush(self):
+        pass
 
 def next_data(din, dout):
     skip = False

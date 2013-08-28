@@ -60,7 +60,7 @@ tokens = ('WHITESPACE',
           'TAG')
 
 
-SYMBOL_FIRST_CHAR = r'\w+!\-_$&=\.\?'
+SYMBOL_FIRST_CHAR = r'\w+!\-_$&=\.\?%'
 SYMBOL = r"[{0}][{0}\d/]*".format(SYMBOL_FIRST_CHAR)
 t_VECTOR_START = '\['
 t_VECTOR_END = '\]'
