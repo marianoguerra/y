@@ -48,8 +48,9 @@ pg = ParserGenerator(["boolean", "nil", "float", "number", "olist", "clist",
 "omap", "cmap", "ovec", "cvec", "oset", "colon", "char_nl", "char_tab",
 "char_return", "char_space", "char", "symbol", "string", "tag"])
 
-class Char(object):
+class Char(str):
     def __init__(self, value):
+        str.__init__(self, value)
         self.__value = value
 
     def __str__(self):
@@ -58,8 +59,9 @@ class Char(object):
     def __repr__(self):
         return '<char "%s">' % self.__value
 
-class Symbol(object):
+class Symbol(str):
     def __init__(self, value):
+        str.__init__(self, value)
         self.__value = value
 
     def __str__(self):
@@ -68,8 +70,9 @@ class Symbol(object):
     def __repr__(self):
         return '<symbol "%s">' % self.__value
 
-class Keyword(object):
+class Keyword(str):
     def __init__(self, value):
+        str.__init__(self, value)
         self.__value = value
 
     def __str__(self):
@@ -89,14 +92,14 @@ class State(object):
 
 class Tagged(object):
     def __init__(self, tag, value):
-        self.tag = tag
-        self.value = value
+        self._tag = tag
+        self._value = value
 
     def __str__(self):
-        return "#{} {}".format(self.tag, str(self.value))
+        return "#{} {}".format(self._tag, str(self._value))
 
     def __repr__(self):
-        return "<tagged {} {}>".format(self.tag, str(self.value))
+        return "<tagged {} {}>".format(self._tag, str(self._value))
 
 NL = Char('\n')
 TAB = Char('\t')
@@ -252,7 +255,7 @@ def dumps(obj):
     if isinstance(obj, Vector):
         return "[%s]" % " ".join([dumps(item) for item in obj])
     elif isinstance(obj, Tagged):
-        return "#{} {}".format(obj.tag, dumps(obj.value))
+        return "#{} {}".format(obj._tag, dumps(obj._value))
     elif isinstance(obj, list):
         return "(%s)" % " ".join([dumps(item) for item in obj])
     elif isinstance(obj, dict):
