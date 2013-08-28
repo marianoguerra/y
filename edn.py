@@ -8,6 +8,8 @@ from rply.token import BaseBox
 
 lg = LexerGenerator()
 
+SYMBOL_RE = r"[\.\*\+\!\-\_\?\$%&=a-zA-Z][\.\*\+\!\-\_\?\$%&=a-zA-Z0-9:#]*"
+
 lg.add("boolean", r"(true|false)")
 lg.add("nil", r"nil")
 lg.add("float", r"\d+\.\d+")
@@ -18,15 +20,16 @@ lg.add("omap", r"{")
 lg.add("cmap", r"}")
 lg.add("ovec", r"\[")
 lg.add("cvec", r"\]")
-lg.add("sharp", r"#")
+lg.add("oset", r"#{")
 lg.add("colon", r":")
 lg.add("char_nl", r"\\newline")
 lg.add("char_tab", r"\\tab")
 lg.add("char_return", r"\\return")
 lg.add("char_space", r"\\space")
 lg.add("char", r"\\.")
-lg.add("symbol", r"[\.\*\+\!\-\_\?\$%&=a-zA-Z][\.\*\+\!\-\_\?\$%&=a-zA-Z0-9:#]*")
+lg.add("symbol", SYMBOL_RE)
 lg.add("string", r'"(\\\^.|\\.|[^\"])*"')
+lg.add("tag", "#" + SYMBOL_RE)
 
 lg.ignore(r"[\s,\n]+")
 lg.ignore(r";.*\n")
@@ -42,8 +45,8 @@ def show_lex(code):
         token = tokens.next()
 
 pg = ParserGenerator(["boolean", "nil", "float", "number", "olist", "clist",
-"omap", "cmap", "ovec", "cvec", "sharp", "colon", "char_nl",
-"char_tab", "char_return", "char_space", "char", "symbol", "string"])
+"omap", "cmap", "ovec", "cvec", "oset", "colon", "char_nl", "char_tab",
+"char_return", "char_space", "char", "symbol", "string", "tag"])
 
 class Char(object):
     def __init__(self, value):
@@ -80,14 +83,9 @@ class Vector(list):
         return "<vector %s>" % list.__repr__(self)
 
 class State(object):
-    def __init__(self):
-        self.level = 0
-
-    def enter(self):
-        self.level += 1
-
-    def leave(self):
-        self.level -= 1
+    def __init__(self, tagged, accept_unknown_tags):
+        self.tagged = tagged if tagged is not None else {}
+        self.accept_unknown_tags = accept_unknown_tags
 
 class Tagged(object):
     def __init__(self, tag, value):
@@ -125,7 +123,7 @@ def value_pairs_one(state, p):
 def value_items_more(state, p):
     return [p[0]] + p[1]
 
-@pg.production("value : sharp omap cmap")
+@pg.production("value : oset cmap")
 def value_empty_set(state, p):
     return set()
 
@@ -145,9 +143,9 @@ def value_empty_vec(state, p):
 def value_empty_list(state, p):
     return []
 
-@pg.production("value : sharp omap items cmap")
+@pg.production("value : oset items cmap")
 def value_set(state, p):
-    return set(p[2])
+    return set(p[1])
 
 @pg.production("value : ovec items cvec")
 def value_vec(state, p):
@@ -205,10 +203,21 @@ def value_symbol(state, p):
 def value_keyword(state, p):
     return Keyword(p[1].value)
 
+@pg.production("value : tag value")
+def value_tagged(state, p):
+    tag_name = p[0].value[1:]
+    if tag_name in state.tagged:
+        constr = state.tagged[tag_name]
+        return constr(p[1])
+    elif state.accept_unknown_tags:
+        return Tagged(tag_name, p[1])
+    else:
+        raise KeyError("No registered constructor for tag '{}'".format(tag_name))
+
 parser = pg.build()
 
-def loads(code):
-    state = State()
+def loads(code, tagged=None, accept_unknown_tags=False):
+    state = State(tagged, accept_unknown_tags)
     return parser.parse(lexer.lex(code), state)
 
 CHARS = {
@@ -271,9 +280,17 @@ def dumps(obj):
     else:
         raise ValueError("Unknown value {} of type {}".format(obj, type(obj)))
 
+@pg.error
+def error_handler(token):
+    raise ValueError("Ran into a %s where it wasn't expected" % token.gettokentype())
 
 if __name__ == "__main__":
     #show_lex('{:foo 1 "bar" 1.2 :baz true false nil [1 #{}] (2 []) key #mg.value 42}')
+
+    class YError(Tagged):
+        def __init__(self, value):
+            Tagged.__init__(self, "y.Error", value)
+
     print(loads("42"))
     print(loads("nil"))
     print(loads("true"))
@@ -299,6 +316,7 @@ if __name__ == "__main__":
     print(repr(loads("(1 true nil)")))
     print(repr(loads("{:foo 42}")))
     print(repr(loads("{:foo 42 bar true \\a 12.3}")))
+    print(repr(loads("#y.Error {:foo 42}", {"y.Error": YError})))
 
     print()
 
@@ -306,3 +324,5 @@ if __name__ == "__main__":
     print(dumps(loads(r'"a\"sd"')))
     print(dumps(loads("(1 true nil [1.2 {:foo 42 bar true \\a 12.3 \"asd\" \\newline}])")))
     print(dumps(Tagged("y.Error", loads('{:reason "asd" :status 500}'))))
+    print(dumps(loads("#y.Error {:foo 42}", {"y.Error": YError})))
+    print(dumps(loads("#y.Error {:foo 42}", accept_unknown_tags=True)))
