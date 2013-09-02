@@ -1,5 +1,7 @@
 import edn
 import yutil
+import psutil
+import uuid
 
 from predicates import PREDICATES
 from ystatus import NOT_FOUND, BAD_REQUEST, OK
@@ -528,6 +530,40 @@ def group_by(args, din, dout, raw_args):
     din.on_data(on_data)
     din.consume()
 
+def dictify(value):
+    if hasattr(value, "_asdict"):
+        return dictify(value._asdict())
+    elif isinstance(value, dict):
+        return {key: dictify(val) for key, val in value.items()}
+    elif yutil.is_seq(value):
+        return [dictify(item) for item in value]
+    else:
+        return value
+
+def ps(args, din, dout, raw_args):
+    for pid in psutil.get_pid_list():
+        try:
+            dout.emit(dictify(psutil.Process(pid).as_dict()))
+        except psutil._error.NoSuchProcess:
+            pass
+
+def net_io(args, din, dout, raw_args):
+    for iface, item in psutil.net_io_counters(pernic=True).items():
+        data = item._asdict()
+        data["name"] = iface
+        dout.emit(dictify(data))
+
+def users(args, din, dout, raw_args):
+    for item in psutil.get_users():
+        dout.emit(dictify(item))
+
+def partitions(args, din, dout, raw_args):
+    for partition in psutil.disk_partitions():
+        dout.emit(dictify(partition))
+
+def get_uuid(args, din, dout, raw_args):
+    dout.emit(dict(uuid=str(uuid.uuid4())))
+
 COMMANDS = {
     "map": cmap,
     "echo": echo,
@@ -581,5 +617,10 @@ COMMANDS = {
 
     "error": error,
 
-    "ls": ls
+    "ls": ls,
+    "ps": ps,
+    "net-io": net_io,
+    "users": users,
+    "partitions": partitions,
+    "uuid": get_uuid
 }
