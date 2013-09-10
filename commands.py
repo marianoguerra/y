@@ -13,6 +13,15 @@ import random
 import datetime
 import collections
 
+class State(object):
+
+    def __init__(self):
+        self.done = False
+        self.count = 0
+        self.accum = []
+        self.dct = {}
+        self.value = None
+
 class Handler(object):
     def __init__(self, din, on_data=None, dout=None, emit_on_end=None,
             do_reset=True):
@@ -169,10 +178,12 @@ startswith = str_op(str.startswith, True, False)
 endswith = str_op(str.endswith, True, False)
 
 def cany(args, din, dout, raw_args):
+    state = State()
     def on_data(data, predicate, param):
-        if predicate(data, param):
+        if predicate(data, param) and not state.done:
             dout.emit(True)
-            din.stop()
+            state.done = True
+            #din.stop()
 
     din.on_end(lambda: not din.is_stopped() and dout.emit(False))
     return _with_predicate(args, din, dout, raw_args, on_data)
@@ -181,10 +192,12 @@ cany.n_raw_args = 1
 cany.reduce_command = True
 
 def call(args, din, dout, raw_args):
+    state = State()
     def on_data(data, predicate, param):
-        if not predicate(data, param):
+        if not predicate(data, param) and not state.done:
             dout.emit(False)
-            din.stop()
+            state.done = True
+            #din.stop()
 
     din.on_end(lambda: not din.is_stopped() and dout.emit(True))
     return _with_predicate(args, din, dout, raw_args, on_data)
@@ -195,13 +208,15 @@ call.reduce_command = True
 def nth(args, din, dout, raw_args):
     value = int(raw_args[0])
     handler = Handler(din)
+    state = State()
 
     def on_data(data):
         handler.count += 1
 
-        if value == handler.count:
+        if not state.done and value == handler.count:
             dout.emit(data)
-            din.stop()
+            state.done = True
+            #din.stop()
 
     def on_end():
         if not din.is_stopped():
@@ -238,10 +253,12 @@ cmax.reduce_command = True
 
 def contains(args, din, dout, raw_args):
     arg = args
+    state = State()
     def on_data(data):
-        if arg == data:
+        if not state.done and arg == data:
             dout.emit(True)
-            din.stop()
+            state.done = True
+            #din.stop()
 
     def on_end():
         if not din.is_stopped():
@@ -267,13 +284,17 @@ count.reduce_command = True
 def first(args, din, dout, raw_args):
     limit = args
     handler = Handler(din)
+    state = State()
     def on_data(data):
+        if state.done:
+            return
+
         handler.count += 1
 
-        if handler.count > limit:
-            din.stop()
-        else:
+        if handler.count <= limit:
             dout.emit(data)
+        else:
+            state.done = True
 
     din.on_data(on_data)
     din.consume()
@@ -432,7 +453,8 @@ def slice(args, din, dout, raw_args):
         if handler.count >= start and handler.count < stop and handler.count % step == 0:
             dout.emit(data)
         elif handler.count >= stop:
-            din.stop()
+            pass
+            #din.stop()
 
         handler.count += 1
 
