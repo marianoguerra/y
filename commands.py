@@ -122,44 +122,19 @@ def cslice(oin, env, state, start=None, stop=None, step=None):
 
 @COMMANDS.command("first")
 def cfirst(oin, env, state, n=1):
-    yield from cslice(oin, env, state, stop=[n])
+    yield from cslice(oin, env, state, stop=n)
 
 @COMMANDS.command("last")
 def clast(oin, env, state, n=1):
-    yield from cslice(oin, env, state, start=[-n])
+    yield from cslice(oin, env, state, start=-n)
 
 @COMMANDS.command("drop-first")
 def drop_first(oin, env, state, n=1):
-    yield from cslice(oin, env, state, start=[n])
+    yield from cslice(oin, env, state, start=n)
 
 @COMMANDS.command("drop-last")
 def drop_last(oin, env, state, n=1):
-    yield from cslice(oin, env, state, stop=[-n])
-
-@COMMANDS.command("help")
-def chelp(oin, env, state, command_name):
-    command = env.resolve(command_name)
-    if command:
-        yield "help for %s" % command_name
-        if command.command_docs:
-            yield ""
-            yield command.command_docs
-        if command.command_args:
-            yield ""
-            yield "Positional arguments"
-            for arg_name, arg_type in command.command_args:
-                yield "%s -- %s" % (arg_name, arg_type)
-        if command.command_accepts_rargs:
-            yield "[*args] -- rest arguments"
-
-        if command.command_kwargs:
-            yield ""
-            yield "Keyword arguments"
-            for arg_name in command.command_kworder:
-                arg_type = command.command_kwargs[arg_name]
-                yield "%s -- %s" % (arg_name, arg_type)
-    else:
-        raise KeyError("Command %s not found" % command_name)
+    yield from cslice(oin, env, state, stop=-n)
 
 @COMMANDS.command("eval")
 def ceval(oin, env, state, command_name, *args, **kwargs):
