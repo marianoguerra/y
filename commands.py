@@ -3,6 +3,7 @@ import random
 import operator
 import datetime
 
+import csv
 import edn
 import json
 from yutil import *
@@ -11,6 +12,9 @@ COMMANDS = Commands()
 
 fun_command(COMMANDS, "to-edn", edn.dumps)
 fun_command(COMMANDS, "to-json", json.dumps)
+fun_command(COMMANDS, "to-int", int)
+fun_command(COMMANDS, "to-float", float)
+fun_command(COMMANDS, "to-str", str)
 fun_command(COMMANDS, "to-bool", bool)
 fun_command(COMMANDS, "not", lambda x: not bool(x))
 fun_command(COMMANDS, "identity", lambda x: x)
@@ -57,8 +61,27 @@ def from_edn(oin, env, state):
     return (env.from_edn(obj) for obj in oin)
 
 @COMMANDS.command("from-json")
-def from_edn(oin, env, state):
+def from_json(oin, env, state):
     return (json.loads(obj) for obj in oin)
+
+class DummyFileLileOutput(object):
+    def __init__(self):
+        self.last = None
+
+    def write(self, thing):
+        self.last = thing
+
+@COMMANDS.command("to-csv")
+def to_csv(oin, env, state, dialect="excel", delimiter=","):
+    out = DummyFileLileOutput()
+    writer = csv.writer(out, dialect=dialect, delimiter=delimiter)
+    for obj in oin:
+        writer.writerow(obj)
+        yield out.last
+
+@COMMANDS.command("from-csv")
+def from_csv(oin, env, state, dialect="excel", delimiter=","):
+    return csv.reader(oin, dialect=dialect, delimiter=delimiter)
 
 reduce_command(COMMANDS, "add", operator.add, 0)
 reduce_command(COMMANDS, "sub", operator.sub, 0)

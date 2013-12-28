@@ -51,3 +51,4 @@ y range | y list | y map add
 y now | y to-json | y from-json
 
 y eval eval now
+y range | y list | y to-csv | y from-csv | y map to-int
