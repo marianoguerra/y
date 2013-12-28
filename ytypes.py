@@ -95,12 +95,12 @@ class DictTag(dict):
 
 # -- common types here
 class DateTime(DictTag):
-    TAG_NAME = "y.DateTime"
+    TAG_NAME = "DateTime"
     @classmethod
     def now(cls):
         now = datetime.datetime.now()
-        return cls(year=now.year, month=now.month, day=now.day, hour=now.hour,
-                minute=now.minute, second=now.second)
+        return cls(dict(year=now.year, month=now.month, day=now.day,
+            hour=now.hour, minute=now.minute, second=now.second))
 
 CACHED_USER_NAMES  = {}
 CACHED_GROUP_NAMES = {}
