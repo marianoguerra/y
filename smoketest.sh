@@ -11,6 +11,7 @@ y now | y drop-keys month day year | y to-edn
 y now | y drop-keys month day year | y to-edn | y from-edn
 
 y range | y list
+y range | y to-set | y list
 y range | y list | y reverse
 y range | y list | y slice :step -1
 y range | y identity | y list
@@ -47,6 +48,7 @@ y range | y list | y drop-last :n 3
 y range | y list | y drop-first :n -3
 y range | y list | y drop-last :n -3
 
+y range | y add
 y range | y list | y map add
 y now | y to-json | y from-json
 

@@ -88,12 +88,12 @@ def fun_command(commands, name, fun):
 def col_command(commands, name, fun):
     @commands.command(name=name)
     def fun_command_impl(oin, env, state):
-        return force_iter(fun(oin))
+        yield from force_iter(fun(oin))
 
 def reduce_command(commands, name, fun, initial):
     @commands.command(name=name)
     def fun_command_impl(oin, env, state):
-        return functools.reduce(fun, oin, initial)
+        yield functools.reduce(fun, oin, initial)
 
 class Undefined(object):
     pass

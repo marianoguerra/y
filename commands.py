@@ -24,7 +24,7 @@ fun_command(COMMANDS, "keys", operator.methodcaller("keys"))
 fun_command(COMMANDS, "values", operator.methodcaller("values"))
 fun_command(COMMANDS, "items", operator.methodcaller("items"))
 
-col_command(COMMANDS, "size", lambda x: len(list(force_iter(x))))
+col_command(COMMANDS, "size", lambda x: len(list(x)))
 col_command(COMMANDS, "list", lambda x: [list(x)])
 col_command(COMMANDS, "any", any)
 col_command(COMMANDS, "all", all)
@@ -33,14 +33,13 @@ col_command(COMMANDS, "min", min)
 
 @COMMANDS.command()
 def shuffle(oin, env, state):
-    items = list(force_iter(oin))
+    items = list(oin)
     random.shuffle(items)
     yield from items
 
 @COMMANDS.command()
 def sort(oin, env, state):
-    items = list(force_iter(oin))
-    yield from sorted(items)
+    yield from sorted(oin)
 
 # TODO
 @COMMANDS.command("group-by")
@@ -54,7 +53,7 @@ def group_by(oin, env, state, *names):
 
 @COMMANDS.command("to-set")
 def cset(oin, env, state):
-    yield from set(force_iter(oin))
+    yield from set(oin)
 
 @COMMANDS.command("from-edn")
 def from_edn(oin, env, state):
