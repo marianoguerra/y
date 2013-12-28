@@ -8,7 +8,7 @@ from yutil import *
 import ytypes as yt
 COMMANDS = Commands()
 
-fun_command(COMMANDS, "to-str", edn.dumps)
+fun_command(COMMANDS, "to-edn", edn.dumps)
 fun_command(COMMANDS, "to-bool", bool)
 fun_command(COMMANDS, "not", lambda x: not bool(x))
 fun_command(COMMANDS, "identity", lambda x: x)
@@ -46,9 +46,13 @@ def group_by(oin, env, state, *names):
 
     yield result
 
-@COMMANDS.command("set")
+@COMMANDS.command("to-set")
 def cset(oin, env, state):
     yield from set(force_iter(oin))
+
+@COMMANDS.command("from-edn")
+def from_edn(oin, env, state):
+    return (env.from_edn(obj) for obj in oin)
 
 reduce_command(COMMANDS, "+", operator.add, 0)
 reduce_command(COMMANDS, "-", operator.sub, 0)
@@ -107,7 +111,7 @@ def crange(oin, env, state, start=0, stop=10, step=1):
     return range(start, stop, step)
 
 @COMMANDS.command("now")
-def crange(oin, env, state):
+def now(oin, env, state):
     yield yt.DateTime.now()
 
 @COMMANDS.command("slice")
