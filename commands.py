@@ -4,11 +4,13 @@ import operator
 import datetime
 
 import edn
+import json
 from yutil import *
 import ytypes as yt
 COMMANDS = Commands()
 
 fun_command(COMMANDS, "to-edn", edn.dumps)
+fun_command(COMMANDS, "to-json", json.dumps)
 fun_command(COMMANDS, "to-bool", bool)
 fun_command(COMMANDS, "not", lambda x: not bool(x))
 fun_command(COMMANDS, "identity", lambda x: x)
@@ -53,6 +55,10 @@ def cset(oin, env, state):
 @COMMANDS.command("from-edn")
 def from_edn(oin, env, state):
     return (env.from_edn(obj) for obj in oin)
+
+@COMMANDS.command("from-json")
+def from_edn(oin, env, state):
+    return (json.loads(obj) for obj in oin)
 
 reduce_command(COMMANDS, "add", operator.add, 0)
 reduce_command(COMMANDS, "sub", operator.sub, 0)
