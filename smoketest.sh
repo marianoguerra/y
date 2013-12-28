@@ -47,4 +47,6 @@ y range | y list | y drop-last :n 3
 y range | y list | y drop-first :n -3
 y range | y list | y drop-last :n -3
 
+y range | y list | y map add
+
 y eval eval now

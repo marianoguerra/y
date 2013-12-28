@@ -54,9 +54,9 @@ def cset(oin, env, state):
 def from_edn(oin, env, state):
     return (env.from_edn(obj) for obj in oin)
 
-reduce_command(COMMANDS, "+", operator.add, 0)
-reduce_command(COMMANDS, "-", operator.sub, 0)
-reduce_command(COMMANDS, "*", operator.mul, 1)
+reduce_command(COMMANDS, "add", operator.add, 0)
+reduce_command(COMMANDS, "sub", operator.sub, 0)
+reduce_command(COMMANDS, "mul", operator.mul, 1)
 reduce_command(COMMANDS, "div", operator.truediv, 1)
 
 @COMMANDS.command("is")
