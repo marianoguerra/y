@@ -64,28 +64,28 @@ TAB = Char('\t')
 RETURN = Char('\r')
 SPACE = Char(' ')
 
-class IntLike(int):
+class IntTag(int):
     def __new__(self, value):
         return int.__new__(self, value)
 
     def to_edn(self):
         return Tagged(self.TAG_NAME, int(self))
 
-class FloatLike(float):
+class FloatTag(float):
     def __new__(self, value):
         return float.__new__(self, value)
 
     def to_edn(self):
         return Tagged(self.TAG_NAME, float(self))
 
-class StrLike(str):
+class StrTag(str):
     def __new__(self, value):
         return str.__new__(self, value)
 
     def to_edn(self):
         return Tagged(self.TAG_NAME, str(self))
 
-class DictLike(dict):
+class DictTag(dict):
     def __init__(self, attrs):
         dict.__init__(self, attrs)
         self.__dict__ = attrs
@@ -94,7 +94,7 @@ class DictLike(dict):
         return Tagged(self.TAG_NAME, self.__dict__)
 
 # -- common types here
-class DateTime(DictLike):
+class DateTime(DictTag):
     TAG_NAME = "y.DateTime"
     @classmethod
     def now(cls):
@@ -129,38 +129,38 @@ def get_group_from_gid(gid):
         CACHED_GROUP_NAMES[gid] = groupname
         return groupname
 
-class FileSize(IntLike):
+class FileSize(IntTag):
     TAG_NAME = "FileSize"
 
     def to_human(self):
         return "{} KBs".format(self / 1024)
     
-class Uid(IntLike):
+class Uid(IntTag):
     TAG_NAME = "Uid"
 
     def to_human(self):
         return get_user_from_uid(self)
     
-class Gid(IntLike):
+class Gid(IntTag):
     TAG_NAME = "Gid"
 
     def to_human(self):
         return get_group_from_gid(self)
 
-class Path(StrLike):
+class Path(StrTag):
     TAG_NAME = "Path"
     
-class UnixPerms(IntLike):
+class UnixPerms(IntTag):
     TAG_NAME = "UnixPerms"
 
-class Timestamp(FloatLike):
+class Timestamp(FloatTag):
     TAG_NAME = "Timestamp"
 
     def to_human(self):
         dtime = datetime.datetime.fromtimestamp(self)
         return dtime.strftime("%c")
 
-class FileType(StrLike):
+class FileType(StrTag):
     TAG_NAME = "FileType"
     TO_HUMAN = {
         "f": "File",
@@ -172,7 +172,7 @@ class FileType(StrLike):
     def to_human(self):
         return self.TO_HUMAN.get(self, "Unknwon")
 
-class File(DictLike):
+class File(DictTag):
     TAG_NAME = "File"
 
     @classmethod
