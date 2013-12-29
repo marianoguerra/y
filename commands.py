@@ -18,7 +18,6 @@ fun_command(COMMANDS, "to-str", str)
 fun_command(COMMANDS, "to-bool", bool)
 fun_command(COMMANDS, "not", lambda x: not bool(x))
 fun_command(COMMANDS, "identity", lambda x: x)
-fun_command(COMMANDS, "reverse", lambda x: x[::-1])
 
 fun_command(COMMANDS, "keys", operator.methodcaller("keys"))
 fun_command(COMMANDS, "values", operator.methodcaller("values"))
@@ -31,6 +30,11 @@ col_command(COMMANDS, "all", all)
 col_command(COMMANDS, "max", max)
 col_command(COMMANDS, "min", min)
 
+reduce_command(COMMANDS, "add", operator.add, 0)
+reduce_command(COMMANDS, "sub", operator.sub, 0)
+reduce_command(COMMANDS, "mul", operator.mul, 1)
+reduce_command(COMMANDS, "div", operator.truediv, 1)
+
 @COMMANDS.command()
 def shuffle(oin, env, state):
     items = list(oin)
@@ -40,6 +44,10 @@ def shuffle(oin, env, state):
 @COMMANDS.command()
 def sort(oin, env, state):
     yield from sorted(oin)
+
+@COMMANDS.command()
+def reverse(oin, env, state):
+    yield from reversed(list(oin))
 
 # TODO
 @COMMANDS.command("group-by")
@@ -81,11 +89,6 @@ def to_csv(oin, env, state, dialect="excel", delimiter=","):
 @COMMANDS.command("from-csv")
 def from_csv(oin, env, state, dialect="excel", delimiter=","):
     return csv.reader(oin, dialect=dialect, delimiter=delimiter)
-
-reduce_command(COMMANDS, "add", operator.add, 0)
-reduce_command(COMMANDS, "sub", operator.sub, 0)
-reduce_command(COMMANDS, "mul", operator.mul, 1)
-reduce_command(COMMANDS, "div", operator.truediv, 1)
 
 @COMMANDS.command("is")
 def cis(oin, env, state, pred_name, arg=None):
@@ -145,8 +148,7 @@ def now(oin, env, state):
 @COMMANDS.command("slice")
 def cslice(oin, env, state, start=None, stop=None, step=None):
     getter = operator.itemgetter(slice(start, stop, step))
-    for obj in oin:
-        yield getter(obj)
+    yield from getter(list(oin))
 
 @COMMANDS.command("first")
 def cfirst(oin, env, state, n=1):

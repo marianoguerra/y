@@ -12,8 +12,8 @@ y now | y drop-keys month day year | y to-edn | y from-edn
 
 y range | y list
 y range | y to-set | y list
-y range | y list | y reverse
-y range | y list | y slice :step -1
+y range | y reverse | y list
+y range | y slice :step -1 | y list
 y range | y identity | y list
 y range | y size
 y range | y inc :by 2 | y list
@@ -34,19 +34,19 @@ y range | y min
 y range | y max
 y range :start 1 | y all
 
-y range | y list | y first
-y range | y list | y last
-y range | y list | y first :n 3
-y range | y list | y last :n 3
-y range | y list | y first :n -3
-y range | y list | y last :n -3
+y range| y first | y list
+y range| y last | y list
+y range| y first :n 3 | y list
+y range| y last :n 3 | y list
+y range| y first :n -3 | y list
+y range| y last :n -3 | y list
 
-y range | y list | y drop-first
-y range | y list | y drop-last
-y range | y list | y drop-first :n 3
-y range | y list | y drop-last :n 3
-y range | y list | y drop-first :n -3
-y range | y list | y drop-last :n -3
+y range| y drop-first | y list
+y range| y drop-last | y list
+y range| y drop-first :n 3 | y list
+y range| y drop-last :n 3 | y list
+y range| y drop-first :n -3 | y list
+y range| y drop-last :n -3 | y list
 
 y range | y add
 y range | y list | y map add

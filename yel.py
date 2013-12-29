@@ -14,7 +14,8 @@ def edn_to_obj(edn_iter, env):
 
 def run_command(command, env, args, kwargs, objs_in):
     state = yutil.build_state(command)
-    for obj_out in command(objs_in, env, state, *args, **kwargs):
+    result = command(objs_in, env, state, *args, **kwargs)
+    for obj_out in yutil.force_iter(result):
         yield obj_out
 
 def run_command_edn_in(command, env, args, kwargs, edn_iter):
