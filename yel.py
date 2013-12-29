@@ -35,11 +35,9 @@ def isnt_keyword(obj):
 def get_until_keyword(iterable):
     return itertools.takewhile(isnt_keyword, iterable)
 
-def unwrap_if_one_true_if_zero(items):
+def unwrap_if_one(items):
     if len(items) == 1:
         return items[0]
-    elif len(items) == 0:
-        return True
     else:
         return items
 
@@ -55,7 +53,7 @@ def parse_args(args_str, env):
     for obj in kwargs_iter:
         if is_keyword(obj):
             if current_key is not None:
-                kwargs[current_key.name] = unwrap_if_one_true_if_zero(accum)
+                kwargs[current_key.name] = unwrap_if_one(accum)
 
             accum = []
             current_key = obj
@@ -63,7 +61,7 @@ def parse_args(args_str, env):
             accum.append(obj)
 
     if current_key:
-        kwargs[current_key.name] = unwrap_if_one_true_if_zero(accum)
+        kwargs[current_key.name] = unwrap_if_one(accum)
 
     return rargs, kwargs
 
