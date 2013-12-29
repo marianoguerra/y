@@ -10,6 +10,8 @@ from yutil import *
 import ytypes as yt
 COMMANDS = Commands()
 
+YPredName = EdnStrLike
+
 fun_command(COMMANDS, "to-edn", edn.dumps)
 fun_command(COMMANDS, "to-json", json.dumps)
 fun_command(COMMANDS, "to-int", int)
@@ -79,7 +81,7 @@ class DummyFileLileOutput(object):
         self.last = thing
 
 @COMMANDS.command("to-csv")
-def to_csv(oin, env, dialect="excel", delimiter=","):
+def to_csv(oin, env, dialect: EdnStrLike="excel", delimiter: str=","):
     out = DummyFileLileOutput()
     writer = csv.writer(out, dialect=dialect, delimiter=delimiter)
     for obj in oin:
@@ -87,31 +89,31 @@ def to_csv(oin, env, dialect="excel", delimiter=","):
         yield out.last
 
 @COMMANDS.command("from-csv")
-def from_csv(oin, env, dialect="excel", delimiter=","):
+def from_csv(oin, env, dialect: EdnStrLike="excel", delimiter: str=","):
     return csv.reader(oin, dialect=dialect, delimiter=delimiter)
 
 @COMMANDS.command("is")
-def is_command(oin, env, pred_name, arg=None):
+def is_command(oin, env, pred_name: YPredName, arg: Any=None):
     """Check if value pass predicate pred_name"""
     return (env.check_predicate(obj, pred_name, arg) for obj in oin)
 
 @COMMANDS.command("isnt")
-def isnt(oin, env, pred_name, arg=None):
+def isnt(oin, env, pred_name: YPredName, arg: Any=None):
     """Check if value doesn't pass predicate pred_name"""
     return (not env.check_predicate(obj, pred_name, arg) for obj in oin)
 
 @COMMANDS.command("keep")
-def keep(oin, env, pred_name, arg=None):
+def keep(oin, env, pred_name: YPredName, arg: Any=None):
     """keep objects that satisfy predicate"""
     return (obj for obj in oin if env.check_predicate(obj, pred_name, arg))
 
 @COMMANDS.command("drop")
-def drop(oin, env, pred_name, arg=None):
+def drop(oin, env, pred_name: YPredName, arg: Any=None):
     """drop objects that satisfy predicate"""
     return (obj for obj in oin if not env.check_predicate(obj, pred_name, arg))
 
 @COMMANDS.command()
-def inc(oin, env, by=1):
+def inc(oin, env, by: OneOf(int, float)=1):
     "Increase input by a given amount (default to 1)"
     return (obj + by for obj in oin)
 
@@ -122,23 +124,23 @@ def flatten1(oin, env):
             yield item
 
 @COMMANDS.command("get")
-def get_keys(oin, env, *names, default=None):
+def get_keys(oin, env, *names: SeqOf(EdnStrLike), default: Any=None):
     for obj in oin:
         yield get_path(obj, names, default)
 
 @COMMANDS.command("keep-keys")
-def keep_keys(oin, env, *names):
+def keep_keys(oin, env, *names: SeqOf(EdnStrLike)):
     for obj in oin:
         yield {str(key): obj[key] for key in names}
 
 @COMMANDS.command("drop-keys")
-def drop_keys(oin, env, *names):
+def drop_keys(oin, env, *names: SeqOf(EdnStrLike)):
     name_set = set(names)
     for obj in oin:
         yield {key: val for key, val in obj.items() if key not in name_set}
 
 @COMMANDS.command("range")
-def range_command(oin, env, start=0, stop=10, step=1):
+def range_command(oin, env, start: int=0, stop: int=10, step: int=1):
     return range(start, stop, step)
 
 @COMMANDS.command("now")
@@ -146,32 +148,33 @@ def now(oin, env):
     yield yt.DateTime.now()
 
 @COMMANDS.command("slice")
-def slice_command(oin, env, start=None, stop=None, step=None):
+def slice_command(oin, env, start: Maybe(int)=None, stop: Maybe(int)=None,
+        step: Maybe(int)=None):
     getter = operator.itemgetter(slice(start, stop, step))
     yield from getter(list(oin))
 
 @COMMANDS.command("first")
-def first(oin, env, n=1):
+def first(oin, env, n: int=1):
     yield from slice_command(oin, env, stop=n)
 
 @COMMANDS.command("last")
-def last(oin, env, n=1):
+def last(oin, env, n: int=1):
     yield from slice_command(oin, env, start=-n)
 
 @COMMANDS.command("drop-first")
-def drop_first(oin, env, n=1):
+def drop_first(oin, env, n: int=1):
     yield from slice_command(oin, env, start=n)
 
 @COMMANDS.command("drop-last")
-def drop_last(oin, env, n=1):
+def drop_last(oin, env, n: int=1):
     yield from slice_command(oin, env, stop=-n)
 
 @COMMANDS.command("to-human")
-def to_human(oin, env, mode=None):
+def to_human(oin, env, mode: Maybe(EdnStrLike)=None):
     return (env.to_human(obj, mode) for obj in oin)
 
 @COMMANDS.command("format")
-def format(oin, env, format_string):
+def format(oin, env, format_string: str):
     printer = tap(print)
     for obj in oin:
         if is_seq(obj):
@@ -184,16 +187,16 @@ def format(oin, env, format_string):
 format.y_raw_args = True
 
 @COMMANDS.command("eval")
-def eval_command(oin, env, command_name, *args, **kwargs):
+def eval_command(oin, env, command_name: yt.Symbol, *args, **kwargs):
     command = env.resolve(command_name)
     if callable(command):
         state = build_state(command)
         yield from command(oin, env, *args, **kwargs)
     else:
         raise KeyError("Command %s not found" % command_name)
-    
+
 @COMMANDS.command("map")
-def map_command(oin, env, command_name, *args, **kwargs):
+def map_command(oin, env, command_name: yt.Symbol, *args, **kwargs):
     command = env.resolve(command_name)
     if callable(command):
         for obj in oin:
@@ -201,9 +204,9 @@ def map_command(oin, env, command_name, *args, **kwargs):
             yield command(force_iter(obj), env, *args, **kwargs)
     else:
         raise KeyError("Command %s not found" % command_name)
-    
+
 @COMMANDS.command("ls")
-def ls(oin, env, path=".", deep=False):
+def ls(oin, env, path: EdnStrLike=".", deep: bool=False):
     if os.path.isdir(path):
         for _dirpath, dirnames, filenames in os.walk(path):
 
@@ -214,7 +217,7 @@ def ls(oin, env, path=".", deep=False):
                 yield yt.File.from_path(filename)
 
             if not deep:
-                break 
+                break
 
     else:
         yield yt.File.from_path(path)

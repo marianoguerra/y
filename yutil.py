@@ -152,3 +152,24 @@ def get_path(obj, names, default=None):
             return current
 
     return current
+
+class Type(object):
+    pass
+
+class OneOf(Type):
+    def __init__(self, *types):
+        self.types = types
+
+class SeqOf(Type):
+    def __init__(self, *types):
+        self.types = types
+
+class Maybe(Type):
+    def __init__(self, type):
+        self.type = type
+
+class AnyType(Type):
+    pass
+
+EdnStrLike = OneOf(str, yt.Symbol, yt.Keyword)
+Any = AnyType()
