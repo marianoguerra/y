@@ -82,17 +82,17 @@ def force_iter(obj):
 
 def fun_command(commands, name, fun):
     @commands.command(name=name)
-    def fun_command_impl(oin, env, state):
+    def fun_command_impl(oin, env):
         return (fun(value) for value in oin) 
 
 def col_command(commands, name, fun):
     @commands.command(name=name)
-    def fun_command_impl(oin, env, state):
+    def fun_command_impl(oin, env):
         yield from force_iter(fun(oin))
 
 def reduce_command(commands, name, fun, initial):
     @commands.command(name=name)
-    def fun_command_impl(oin, env, state):
+    def fun_command_impl(oin, env):
         return functools.reduce(fun, oin, initial)
 
 class Undefined(object):

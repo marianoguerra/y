@@ -14,7 +14,7 @@ def dictify(value):
         return value
 
 @COMMANDS.command()
-def ps(oin, env, state):
+def ps(oin, env):
     for pid in psutil.get_pid_list():
         try:
             yield dictify(psutil.Process(pid).as_dict())
@@ -25,19 +25,19 @@ def ps(oin, env, state):
             pass
 
 @COMMANDS.command("net-io")
-def net_io(oin, env, state):
+def net_io(oin, env):
     for iface, item in psutil.net_io_counters(pernic=True).items():
         data = item._asdict()
         data["name"] = iface
         yield dictify(data)
 
 @COMMANDS.command()
-def users(oin, env, state):
+def users(oin, env):
     for item in psutil.get_users():
         yield dictify(item)
 
 @COMMANDS.command()
-def partitions(oin, env, state):
+def partitions(oin, env):
     for partition in psutil.disk_partitions():
         yield dictify(partition)
 

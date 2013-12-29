@@ -54,3 +54,4 @@ y now | y to-json | y from-json
 
 y eval eval now
 y range | y list | y to-csv | y from-csv | y map to-int
+y ps/ps | y first

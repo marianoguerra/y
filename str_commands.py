@@ -10,9 +10,9 @@ fun_command(COMMANDS, "rtrim", str.rstrip)
 fun_command(COMMANDS, "ltrim", str.lstrip)
 
 @COMMANDS.command(name="starts-with")
-def startswith(oin, env, state, value):
+def startswith(oin, env, value):
     return (obj.startswith(value) for obj in oin)
 
 @COMMANDS.command(name="ends-with")
-def endsswith(oin, env, state, value):
+def endsswith(oin, env, value):
     return (obj.endswith(value) for obj in oin)

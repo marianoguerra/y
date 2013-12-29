@@ -36,22 +36,22 @@ reduce_command(COMMANDS, "mul", operator.mul, 1)
 reduce_command(COMMANDS, "div", operator.truediv, 1)
 
 @COMMANDS.command()
-def shuffle(oin, env, state):
+def shuffle(oin, env):
     items = list(oin)
     random.shuffle(items)
     yield from items
 
 @COMMANDS.command()
-def sort(oin, env, state):
+def sort(oin, env):
     yield from sorted(oin)
 
 @COMMANDS.command()
-def reverse(oin, env, state):
+def reverse(oin, env):
     yield from reversed(list(oin))
 
 # TODO
 @COMMANDS.command("group-by")
-def group_by(oin, env, state, *names):
+def group_by(oin, env, *names):
     result = {}
     for obj in oin:
         key = get_path(obj, names)
@@ -60,15 +60,15 @@ def group_by(oin, env, state, *names):
     yield result
 
 @COMMANDS.command("to-set")
-def to_set(oin, env, state):
+def to_set(oin, env):
     yield from set(oin)
 
 @COMMANDS.command("from-edn")
-def from_edn(oin, env, state):
+def from_edn(oin, env):
     return (env.from_edn(obj) for obj in oin)
 
 @COMMANDS.command("from-json")
-def from_json(oin, env, state):
+def from_json(oin, env):
     return (json.loads(obj) for obj in oin)
 
 class DummyFileLileOutput(object):
@@ -79,7 +79,7 @@ class DummyFileLileOutput(object):
         self.last = thing
 
 @COMMANDS.command("to-csv")
-def to_csv(oin, env, state, dialect="excel", delimiter=","):
+def to_csv(oin, env, dialect="excel", delimiter=","):
     out = DummyFileLileOutput()
     writer = csv.writer(out, dialect=dialect, delimiter=delimiter)
     for obj in oin:
@@ -87,106 +87,106 @@ def to_csv(oin, env, state, dialect="excel", delimiter=","):
         yield out.last
 
 @COMMANDS.command("from-csv")
-def from_csv(oin, env, state, dialect="excel", delimiter=","):
+def from_csv(oin, env, dialect="excel", delimiter=","):
     return csv.reader(oin, dialect=dialect, delimiter=delimiter)
 
 @COMMANDS.command("is")
-def is_command(oin, env, state, pred_name, arg=None):
+def is_command(oin, env, pred_name, arg=None):
     """Check if value pass predicate pred_name"""
     return (env.check_predicate(obj, pred_name, arg) for obj in oin)
 
 @COMMANDS.command("isnt")
-def isnt(oin, env, state, pred_name, arg=None):
+def isnt(oin, env, pred_name, arg=None):
     """Check if value doesn't pass predicate pred_name"""
     return (not env.check_predicate(obj, pred_name, arg) for obj in oin)
 
 @COMMANDS.command("keep")
-def keep(oin, env, state, pred_name, arg=None):
+def keep(oin, env, pred_name, arg=None):
     """keep objects that satisfy predicate"""
     return (obj for obj in oin if env.check_predicate(obj, pred_name, arg))
 
 @COMMANDS.command("drop")
-def drop(oin, env, state, pred_name, arg=None):
+def drop(oin, env, pred_name, arg=None):
     """drop objects that satisfy predicate"""
     return (obj for obj in oin if not env.check_predicate(obj, pred_name, arg))
 
 @COMMANDS.command()
-def inc(oin, env, state, by=1):
+def inc(oin, env, by=1):
     "Increase input by a given amount (default to 1)"
     return (obj + by for obj in oin)
 
 @COMMANDS.command("flatten1")
-def flatten1(oin, env, state):
+def flatten1(oin, env):
     for obj in oin:
         for item in force_iter(obj):
             yield item
 
 @COMMANDS.command("get")
-def get_keys(oin, env, state, *names, default=None):
+def get_keys(oin, env, *names, default=None):
     for obj in oin:
         yield get_path(obj, names, default)
 
 @COMMANDS.command("keep-keys")
-def keep_keys(oin, env, state, *names):
+def keep_keys(oin, env, *names):
     for obj in oin:
         yield {str(key): obj[key] for key in names}
 
 @COMMANDS.command("drop-keys")
-def drop_keys(oin, env, state, *names):
+def drop_keys(oin, env, *names):
     name_set = set(names)
     for obj in oin:
         yield {key: val for key, val in obj.items() if key not in name_set}
 
 @COMMANDS.command("range")
-def range_command(oin, env, state, start=0, stop=10, step=1):
+def range_command(oin, env, start=0, stop=10, step=1):
     return range(start, stop, step)
 
 @COMMANDS.command("now")
-def now(oin, env, state):
+def now(oin, env):
     yield yt.DateTime.now()
 
 @COMMANDS.command("slice")
-def slice_command(oin, env, state, start=None, stop=None, step=None):
+def slice_command(oin, env, start=None, stop=None, step=None):
     getter = operator.itemgetter(slice(start, stop, step))
     yield from getter(list(oin))
 
 @COMMANDS.command("first")
-def first(oin, env, state, n=1):
-    yield from slice_command(oin, env, state, stop=n)
+def first(oin, env, n=1):
+    yield from slice_command(oin, env, stop=n)
 
 @COMMANDS.command("last")
-def last(oin, env, state, n=1):
-    yield from slice_command(oin, env, state, start=-n)
+def last(oin, env, n=1):
+    yield from slice_command(oin, env, start=-n)
 
 @COMMANDS.command("drop-first")
-def drop_first(oin, env, state, n=1):
-    yield from slice_command(oin, env, state, start=n)
+def drop_first(oin, env, n=1):
+    yield from slice_command(oin, env, start=n)
 
 @COMMANDS.command("drop-last")
-def drop_last(oin, env, state, n=1):
-    yield from slice_command(oin, env, state, stop=-n)
+def drop_last(oin, env, n=1):
+    yield from slice_command(oin, env, stop=-n)
 
 @COMMANDS.command("eval")
-def eval_command(oin, env, state, command_name, *args, **kwargs):
+def eval_command(oin, env, command_name, *args, **kwargs):
     command = env.resolve(command_name)
     if callable(command):
         state = build_state(command)
-        yield from command(oin, env, state, *args, **kwargs)
+        yield from command(oin, env, *args, **kwargs)
     else:
         raise KeyError("Command %s not found" % command_name)
     
 @COMMANDS.command("map")
-def map_command(oin, env, state, command_name, *args, **kwargs):
+def map_command(oin, env, command_name, *args, **kwargs):
     command = env.resolve(command_name)
     if callable(command):
         for obj in oin:
             state = build_state(command)
-            yield command(force_iter(obj), env, state, *args, **kwargs)
+            yield command(force_iter(obj), env, *args, **kwargs)
     else:
         raise KeyError("Command %s not found" % command_name)
     
 @COMMANDS.command("ls")
-def ls(oin, env, state, path=".", deep=False):
+def ls(oin, env, path=".", deep=False):
     if os.path.isdir(path):
         for _dirpath, dirnames, filenames in os.walk(path):
 
