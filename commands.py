@@ -60,7 +60,7 @@ def group_by(oin, env, state, *names):
     yield result
 
 @COMMANDS.command("to-set")
-def cset(oin, env, state):
+def to_set(oin, env, state):
     yield from set(oin)
 
 @COMMANDS.command("from-edn")
@@ -91,12 +91,12 @@ def from_csv(oin, env, state, dialect="excel", delimiter=","):
     return csv.reader(oin, dialect=dialect, delimiter=delimiter)
 
 @COMMANDS.command("is")
-def cis(oin, env, state, pred_name, arg=None):
+def is_command(oin, env, state, pred_name, arg=None):
     """Check if value pass predicate pred_name"""
     return (env.check_predicate(obj, pred_name, arg) for obj in oin)
 
 @COMMANDS.command("isnt")
-def cisnt(oin, env, state, pred_name, arg=None):
+def isnt(oin, env, state, pred_name, arg=None):
     """Check if value doesn't pass predicate pred_name"""
     return (not env.check_predicate(obj, pred_name, arg) for obj in oin)
 
@@ -122,7 +122,7 @@ def flatten1(oin, env, state):
             yield item
 
 @COMMANDS.command("get")
-def getks(oin, env, state, *names, default=None):
+def get_keys(oin, env, state, *names, default=None):
     for obj in oin:
         yield get_path(obj, names, default)
 
@@ -138,7 +138,7 @@ def drop_keys(oin, env, state, *names):
         yield {key: val for key, val in obj.items() if key not in name_set}
 
 @COMMANDS.command("range")
-def crange(oin, env, state, start=0, stop=10, step=1):
+def range_command(oin, env, state, start=0, stop=10, step=1):
     return range(start, stop, step)
 
 @COMMANDS.command("now")
@@ -146,28 +146,28 @@ def now(oin, env, state):
     yield yt.DateTime.now()
 
 @COMMANDS.command("slice")
-def cslice(oin, env, state, start=None, stop=None, step=None):
+def slice_command(oin, env, state, start=None, stop=None, step=None):
     getter = operator.itemgetter(slice(start, stop, step))
     yield from getter(list(oin))
 
 @COMMANDS.command("first")
-def cfirst(oin, env, state, n=1):
-    yield from cslice(oin, env, state, stop=n)
+def first(oin, env, state, n=1):
+    yield from slice_command(oin, env, state, stop=n)
 
 @COMMANDS.command("last")
-def clast(oin, env, state, n=1):
-    yield from cslice(oin, env, state, start=-n)
+def last(oin, env, state, n=1):
+    yield from slice_command(oin, env, state, start=-n)
 
 @COMMANDS.command("drop-first")
 def drop_first(oin, env, state, n=1):
-    yield from cslice(oin, env, state, start=n)
+    yield from slice_command(oin, env, state, start=n)
 
 @COMMANDS.command("drop-last")
 def drop_last(oin, env, state, n=1):
-    yield from cslice(oin, env, state, stop=-n)
+    yield from slice_command(oin, env, state, stop=-n)
 
 @COMMANDS.command("eval")
-def ceval(oin, env, state, command_name, *args, **kwargs):
+def eval_command(oin, env, state, command_name, *args, **kwargs):
     command = env.resolve(command_name)
     if callable(command):
         state = build_state(command)
@@ -176,7 +176,7 @@ def ceval(oin, env, state, command_name, *args, **kwargs):
         raise KeyError("Command %s not found" % command_name)
     
 @COMMANDS.command("map")
-def cmap(oin, env, state, command_name, *args, **kwargs):
+def map_command(oin, env, state, command_name, *args, **kwargs):
     command = env.resolve(command_name)
     if callable(command):
         for obj in oin:
