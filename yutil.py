@@ -27,6 +27,18 @@ class Env(object):
         for key, val in predicates.PREDICATES.items():
             self.predicates[key] = val
 
+    def to_human(self, obj, mode=None):
+        to_human = getattr(obj, "to_human", None)
+        if to_human:
+            return to_human(mode)
+        elif is_seq(obj):
+            return "\t".join(self.to_human(o, mode) for o in obj)
+        elif is_map(obj):
+            return {key: self.to_human(o, mode) for key, o in obj.items()}
+        else:
+            return obj
+
+
     def add_namespace(self, ns_name, values):
         self.bindings[ns_name] = values
 
@@ -95,6 +107,12 @@ def reduce_command(commands, name, fun, initial):
     def fun_command_impl(oin, env):
         return functools.reduce(fun, oin, initial)
 
+def tap(fun):
+    def do(data):
+        fun(data)
+        return data
+    return do
+
 class Undefined(object):
     pass
 
@@ -104,6 +122,9 @@ def is_seq(obj):
     return (not isinstance(obj, str) and
             not isinstance(obj, dict) and
             isinstance(obj, collections.Sequence))
+
+def is_map(obj):
+    return isinstance(obj, collections.Mapping)
 
 def get_key(obj, name, default=None):
     if obj is None:

@@ -75,7 +75,12 @@ def main(command_name, args):
     command = env.resolve(command_name)
 
     if callable(command):
-        args, kwargs = parse_args(args, env)
+        if getattr(command, "y_raw_args", False):
+            args = args
+            kwargs = {}
+        else:
+            args, kwargs = parse_args(args, env)
+
         for result in run_command_edn_in_out(command, env, args, kwargs):
             print(result)
     else:

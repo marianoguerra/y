@@ -166,6 +166,23 @@ def drop_first(oin, env, n=1):
 def drop_last(oin, env, n=1):
     yield from slice_command(oin, env, stop=-n)
 
+@COMMANDS.command("to-human")
+def to_human(oin, env, mode=None):
+    return (env.to_human(obj, mode) for obj in oin)
+
+@COMMANDS.command("format")
+def format(oin, env, format_string):
+    printer = tap(print)
+    for obj in oin:
+        if is_seq(obj):
+            yield format_string.format(*obj)
+        elif is_map(obj):
+            yield format_string.format(**obj)
+        else:
+            yield format_string.format(obj)
+
+format.y_raw_args = True
+
 @COMMANDS.command("eval")
 def eval_command(oin, env, command_name, *args, **kwargs):
     command = env.resolve(command_name)

@@ -132,31 +132,47 @@ def get_group_from_gid(gid):
 class FileSize(IntTag):
     TAG_NAME = "FileSize"
 
-    def to_human(self):
-        return "{} KBs".format(self / 1024)
+    def to_human(self, mode=None):
+        if self > 1024:
+            return "{:.1f}K".format(self / 1024)
+        else:
+            return "{}".format(self)
     
 class Uid(IntTag):
     TAG_NAME = "Uid"
 
-    def to_human(self):
+    def to_human(self, mode=None):
         return get_user_from_uid(self)
     
 class Gid(IntTag):
     TAG_NAME = "Gid"
 
-    def to_human(self):
+    def to_human(self, mode=None):
         return get_group_from_gid(self)
 
 class Path(StrTag):
     TAG_NAME = "Path"
+
+    def to_human(self, mode=None):
+        return str(self)
     
 class UnixPerms(IntTag):
     TAG_NAME = "UnixPerms"
+    BIT_OFF = "-" * 9
+    BIT_ON = "rwxrwxrwx"
+    BITS = [BIT_OFF, BIT_ON]
+
+    def to_human(self, mode=None):
+        if mode == "oct":
+            return oct(self)[2:]
+        else:
+            bits = reversed([bool(self & (1 << i)) for i in range(9)])
+            return "".join(self.BITS[bit_level][i] for i, bit_level in enumerate(bits))
 
 class Timestamp(FloatTag):
     TAG_NAME = "Timestamp"
 
-    def to_human(self):
+    def to_human(self, mode=None):
         dtime = datetime.datetime.fromtimestamp(self)
         return dtime.strftime("%c")
 
@@ -169,7 +185,7 @@ class FileType(StrTag):
         "m": "Mount"
     }
 
-    def to_human(self):
+    def to_human(self, mode=None):
         return self.TO_HUMAN.get(self, "Unknwon")
 
 class File(DictTag):
